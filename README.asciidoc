@@ -1,0 +1,12 @@
+schema2doc
+==========
+:Author: man-at-home
+:Date:   2015-08-03
+
+generating markup based documentation from a oracle database. Document tables and more with asciidoc.
+use it in build tools like gradle.
+
+See
+
+* planning on https://waffle.io/man-at-home/schema2doc
+
