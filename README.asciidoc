@@ -3,6 +3,11 @@ schema2doc
 :Author: man-at-home
 :Date:   2015-08-03
 
+image:https://badge.waffle.io/man-at-home/schema2doc.svg?label=ready&title=Ready["stories ready to start", link=http://waffle.io/man-at-home/schema2doc"]
+image:https://drone.io/github.com/man-at-home/schema2doc/status.png["drone.io", link="https://drone.io/github.com/man-at-home/schema2doc/latest"]
+
+hint: not functional yet!
+
 generating markup based documentation from a oracle database. Document tables and more with asciidoc.
 use it in build tools like gradle.
 
