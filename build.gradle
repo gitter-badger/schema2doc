@@ -20,7 +20,6 @@ apply plugin: "jacoco"
 apply plugin: "jdepend"
 apply plugin: "pmd"
 apply plugin: "sonar-runner"
-apply plugin: "groovy"
 
 // documentation
 apply plugin: "project-report"
@@ -148,13 +147,15 @@ javadoc {
 // CUSTOM TASKS
 // ============
 
-
-// generate all documentation
 task allDocs {
     description "generation of full documentation (asciidoc and javadoc)"
     dependsOn javadoc, asciidoctor, projectReport 
 }
 
+task coverage {
+    description "code coverage"
+    dependsOn test, jacocoTestReport
+}
 
 task wrapper(type: Wrapper) {
     description "gradle wrapper generation (call if gradle version changes)"

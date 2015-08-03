@@ -1,0 +1,29 @@
+# --------------------------------------------------------------------
+# circle.yml:  build configuration for ci-server at circleci.com
+#              build and test schema2doc project on github with gradle
+#
+# @author man-at-home
+# @since  2015-08-03
+# --------------------------------------------------------------------
+
+machine:
+   java:
+      version: oraclejdk8
+
+dependencies:
+   override:
+     - ./gradlew dependencies
+
+test:
+   override:
+      - ./gradlew test jacocoTestReport
+   post:
+      - cp -R build/reports/*      $CIRCLE_ARTIFACTS
+      - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+      - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+      - bash <(curl -s https://codecov.io/bash)
+
+general:
+   branches:
+      only:
+         - master
