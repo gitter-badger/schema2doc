@@ -4,11 +4,12 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.manathome.schema2doc.scanner.IScanner;
 
 /** tests. */
 public class MockScannerTest {
 	
-	private MockScanner scanner;
+	private IScanner scanner;
 	
 	@Before
 	public void setUp() throws Exception {

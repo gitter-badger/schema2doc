@@ -6,7 +6,7 @@
     <property name="com.puppycrawl.tools.checkstyle.checks.sizes.LineLength.ignorePattern" value="//.*"/>
     <additional-data name="protect-config-file" value="false"/>
   </local-check-config>
-  <fileset name="all" enabled="true" check-config-name="Google Checks" local="false">
+  <fileset name="all" enabled="true" check-config-name="schema2docCheck" local="true">
     <file-match-pattern match-pattern="." include-pattern="true"/>
   </fileset>
   <filter name="DerivedFiles" enabled="true"/>
