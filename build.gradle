@@ -12,6 +12,7 @@
 // development
 apply plugin: "java"
 apply plugin: "eclipse"
+apply plugin: "org.flywaydb.flyway"
  
 // qa
 apply plugin: "checkstyle"
@@ -47,7 +48,8 @@ buildscript {
     
     dependencies {
         classpath "org.asciidoctor:asciidoctor-gradle-plugin:1.5.2" 
-   }
+        classpath "org.flywaydb:flyway-gradle-plugin:3.2.1"										// db migration
+    }
 }
 
 
@@ -101,6 +103,11 @@ pmd {
    ignoreFailures = true
 }
 
+flyway {
+    url = "jdbc:h2:./schema2doc.test.h2.db"  // makes no sense with the dev in memory db.
+    user = 'sa'
+}
+
 
 tasks.withType(FindBugs) {
     reports {
@@ -152,6 +159,11 @@ javadoc {
 task allDocs {
     description "generation of full documentation (asciidoc and javadoc)"
     dependsOn javadoc, asciidoctor, projectReport 
+}
+
+task allTests {
+    description "all tests fresh"
+    dependsOn clean, flywayClean, flywayMigrate, test, jacocoTestReport
 }
 
 task coverage {

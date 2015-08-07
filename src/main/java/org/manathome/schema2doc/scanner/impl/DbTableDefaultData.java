@@ -3,12 +3,17 @@ package org.manathome.schema2doc.scanner.impl;
 import org.manathome.schema2doc.scanner.IDbTable;
 
 /** test data. */
-public class MockDbTable implements IDbTable {
+public class DbTableDefaultData implements IDbTable {
 	
+	@Override
+	public String toString() {
+		return "Table[" + name + "]";
+	}
+
 	private String name;
 	private String comment;
 
-	public MockDbTable(final String name, final String comment) {
+	public DbTableDefaultData(final String name, final String comment) {
 		this.name = name;
 		this.comment = comment;
 	}

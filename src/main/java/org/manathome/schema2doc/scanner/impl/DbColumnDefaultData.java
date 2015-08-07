@@ -6,7 +6,7 @@ import org.manathome.schema2doc.util.Require;
 
 /** description of one column in a specific table. 
  */
-public class MockDbColumn implements IDbColumn {
+public class DbColumnDefaultData implements IDbColumn {
 	
 	private String  name;
 	private String  typeName;
@@ -14,7 +14,7 @@ public class MockDbColumn implements IDbColumn {
 	private int     length = 0;
 	private boolean isNullable = true;
 
-	public MockDbColumn(@NotNull final String name, @NotNull final String typeName, String comment) {
+	public DbColumnDefaultData(@NotNull final String name, @NotNull final String typeName, String comment) {
 		this.name = Require.notNull(name, "name required");
 		this.typeName = Require.notNull(typeName , "typeName required");
 		this.comment = comment;
@@ -52,6 +52,11 @@ public class MockDbColumn implements IDbColumn {
 	@Override
 	public int compareTo(IDbColumn otherColumn) {
 		return this.getName().compareTo(otherColumn.getName());
+	}
+	
+	@Override
+	public String toString() {
+		return "Column[" + name + ", " + typeName + "]";
 	}
 
 }

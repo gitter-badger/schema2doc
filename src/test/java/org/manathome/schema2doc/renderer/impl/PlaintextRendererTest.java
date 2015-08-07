@@ -8,8 +8,8 @@ import org.junit.Test;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbTable;
-import org.manathome.schema2doc.scanner.impl.MockDbColumn;
-import org.manathome.schema2doc.scanner.impl.MockDbTable;
+import org.manathome.schema2doc.scanner.impl.DbColumnDefaultData;
+import org.manathome.schema2doc.scanner.impl.DbTableDefaultData;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -44,7 +44,7 @@ public class PlaintextRendererTest {
 
 	@Test
 	public void testRenderTable() {
-		IDbTable table = new MockDbTable("dummyTableName", "dummy-comment");
+		IDbTable table = new DbTableDefaultData("dummyTableName", "dummy-comment");
 		renderer.beginRenderTable(table);
 		renderer.endRenderTable(table);
 		String result = out.toString();
@@ -56,7 +56,7 @@ public class PlaintextRendererTest {
 
 	@Test
 	public void testRenderColumn() {
-		IDbColumn column = new MockDbColumn("dummyColumn", "dummyType", "dummy-comment");
+		IDbColumn column = new DbColumnDefaultData("dummyColumn", "dummyType", "dummy-comment");
 		renderer.renderColumn(column);
 		String result = out.toString();
 		

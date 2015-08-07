@@ -21,13 +21,13 @@ public class MockScanner implements IScanner {
 	public static final Map<IDbTable,  Set<IDbColumn>> COLUMNS = new TreeMap<>();
 	
 	public MockScanner() {
-		TABLES.add(new MockDbTable("dummy1tbl" , "dummy1 table documentation"));
-		TABLES.add(new MockDbTable("another_table" , "another table documentation"));
+		TABLES.add(new DbTableDefaultData("dummy1tbl" , "dummy1 table documentation"));
+		TABLES.add(new DbTableDefaultData("another_table" , "another table documentation"));
 		
 		TABLES.forEach(table -> {
 			Set<IDbColumn> tcolumns = new TreeSet<>();
-			tcolumns.add(new MockDbColumn("ID" , "Number", "my key"));
-			tcolumns.add(new MockDbColumn("Name" , "Varchar2", "name of entity"));
+			tcolumns.add(new DbColumnDefaultData("ID" , "Number", "my key"));
+			tcolumns.add(new DbColumnDefaultData("Name" , "Varchar2", "name of entity"));
 			COLUMNS.put(table, tcolumns);
 		});
 	}
