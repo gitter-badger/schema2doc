@@ -1,0 +1,11 @@
+schema2doc
+==========
+:Author: man-at-home
+:Date:   2015-08-08s
+
+== planned functionality
+
+- generate oracle documenation from a live database (sid)
+- tables, columns, constraints and others
+- basic functionality with h2
+- generate documentation as asciidoc
