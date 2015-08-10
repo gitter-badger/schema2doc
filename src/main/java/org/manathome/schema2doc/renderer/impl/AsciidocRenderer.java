@@ -23,7 +23,7 @@ import java.io.PrintStream;
  */
 public class AsciidocRenderer implements IRenderer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PlaintextRenderer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AsciidocRenderer.class);
     
     private PrintStream out = null;
 
@@ -37,20 +37,20 @@ public class AsciidocRenderer implements IRenderer {
 	 * @see org.manathome.schema2doc.renderer.IRenderer#beginRenderTable(org.manathome.schema2doc.scanner.IDbTable)
 	 */
 	@Override
-	public void beginRenderTable(IDbTable table) {
-		out.println("-- " + table.getName());
+	public void beginRenderTable(@NotNull IDbTable table) {
+		out.println("-- " + Require.notNull(table).getName());
 		out.println(Convert.nvl(table.getComment(), ""));
 		
 		// begin table columns..
 		out.println("|===");
-		out.println("|Column | Type | Comment ");
+		out.println("|Column | PK | Type | Comment | Size");
 	}
 
 	/* (non-Javadoc)
 	 * @see org.manathome.schema2doc.renderer.IRenderer#endRenderTable(org.manathome.schema2doc.scanner.IDbTable)
 	 */
 	@Override
-	public void endRenderTable(IDbTable table) {
+	public void endRenderTable(@NotNull final IDbTable table) {
 		out.println("|==="); // end columns table
 		out.println();
 	}
@@ -59,10 +59,12 @@ public class AsciidocRenderer implements IRenderer {
 	 * @see org.manathome.schema2doc.renderer.IRenderer#renderColumn(org.manathome.schema2doc.scanner.IDbColumn)
 	 */
 	@Override
-	public void renderColumn(IDbColumn column) {
-		out.println("| " + column.getName()); 
+	public void renderColumn(@NotNull final IDbColumn column) {
+		out.println("| " + Require.notNull(column, "column").getName()); 
+		out.println("| " + (column.isPrimaryKey() ? "X" : ""));
 		out.println("| " + column.getTypename()); 
-		out.println("| " + Convert.nvl(column.getComment(), "")); 
+		out.println("| " + Convert.nvl(column.getComment(), ""));
+		out.println("| " + (column.getSize() != null ? column.getSize().toString() : ""));
 	}
 
 	@Override

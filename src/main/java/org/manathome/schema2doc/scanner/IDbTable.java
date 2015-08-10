@@ -7,5 +7,9 @@ public interface IDbTable extends Comparable<IDbTable>{
 	public String getName();
 	
 	/** get documentation for table. */
-	public String getComment();		
+	public String getComment();
+
+	public String getCatalog();
+
+	public String getSchema();		
 }

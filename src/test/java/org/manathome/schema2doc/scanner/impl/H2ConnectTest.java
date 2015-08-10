@@ -12,14 +12,18 @@ import java.sql.Statement;
 
 /** test connect with h2 database. */
 public class H2ConnectTest {
+	/** org.h2.Driver. */
+	public static final String H2_DRIVER_NAME = "org.h2.Driver";
+	/** ./totask2.qa.db. */
+	public static final String H2_TOTASK2_DB =  "jdbc:h2:./totask2.qa.db";
 
 	@Test
 	public void testOpenConnection() throws Exception {
-		Class.forName("org.h2.Driver");
-		Connection conn = DriverManager.getConnection("jdbc:h2:./totask2.qa.db", "sa", "");
-		assertTrue("connetion is open", !conn.isClosed());
+		Class.forName(H2_DRIVER_NAME);
+		Connection conn = DriverManager.getConnection(H2_TOTASK2_DB, "sa", "");
+		assertTrue("connection is open", !conn.isClosed());
 		conn.close();
-		assertTrue("connetion is closed", conn.isClosed());
+		assertTrue("connection is closed", conn.isClosed());
 	}
 
 	@Test
@@ -29,7 +33,7 @@ public class H2ConnectTest {
 
 		DeleteDbFiles.execute("~", dbName, true);
 
-		Class.forName("org.h2.Driver");
+		Class.forName(H2_DRIVER_NAME);
 		try (Connection conn = DriverManager.getConnection("jdbc:h2:~/" + dbName)) {
 
 			try (Statement stmt = conn.createStatement()) {

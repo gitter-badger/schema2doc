@@ -33,4 +33,14 @@ public class DbTableDefaultData implements IDbTable {
 		return this.getName().compareTo(otherTable.getName());
 	}
 
+	@Override
+	public String getCatalog() {
+		return null;
+	}
+
+	@Override
+	public String getSchema() {
+		return null;
+	}
+
 }

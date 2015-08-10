@@ -26,8 +26,8 @@ public class MockScanner implements IScanner {
 		
 		TABLES.forEach(table -> {
 			Set<IDbColumn> tcolumns = new TreeSet<>();
-			tcolumns.add(new DbColumnDefaultData("ID" , "Number", "my key"));
-			tcolumns.add(new DbColumnDefaultData("Name" , "Varchar2", "name of entity"));
+			tcolumns.add(new DbColumnDefaultData("ID" , "Number", "my key", 0, 0, null));
+			tcolumns.add(new DbColumnDefaultData("Name" , "Varchar2", "name of entity", 0, 0, null));
 			COLUMNS.put(table, tcolumns);
 		});
 	}

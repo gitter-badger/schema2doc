@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -65,15 +66,40 @@ public class GenericDbScanner implements IScanner {
 		LOG.debug("retrieve columns" + table);
 		try {
 			List<IDbColumn> columns = new ArrayList<>();
-			ResultSet rs = connection.getMetaData().getColumns(null, null, Require.notNull(table).getName(), null);
+			ResultSet rs = connection.getMetaData().getColumns(
+					Require.notNull(table).getCatalog(), 
+					table.getSchema(), 
+					Require.notNull(table).getName(), 
+					null)
+					;
 		    while (rs.next()) {
 		    	columns.add(
 		    			new DbColumnDefaultData(
 		    			rs.getString("COLUMN_NAME"),
 		    			rs.getString("TYPE_NAME"),
-		    			rs.getString("TYPE_NAME")
+		    			rs.getString("REMARKS"),
+		    			rs.getInt("COLUMN_SIZE"),
+		    			rs.getInt("DECIMAL_DIGITS"),
+		    			rs.getString("IS_NULLABLE")
 		    			));
 	        }
+		    
+		    try {
+			    rs = connection.getMetaData().getPrimaryKeys(table.getCatalog(), table.getSchema(), table.getName());
+			    while (rs.next()) {
+				    String columnName = rs.getString("COLUMN_NAME");
+				    int    keySeq     = rs.getInt("KEY_SEQ");
+						columns
+							.stream()
+							.filter(c -> c.getName().equals(columnName))
+							.findFirst()
+							.ifPresent(c -> c.setPrimaryKey(keySeq));
+		        } 
+		    } catch (SQLException ex) {
+	        	LOG.error("primary key information not processed for table " + table.getName(), ex);
+	        }
+		    
+		    
 		    return columns.stream();
 		} catch (Exception ex) {
 			throw new ScannerException("error retrieving colums for " + table, ex);

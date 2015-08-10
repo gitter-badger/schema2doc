@@ -5,8 +5,11 @@ public interface IDbColumn extends Comparable<IDbColumn> {
 	
 	public String 	getName();
 	public String 	getTypename();
-	public int 		getLength();
+	public Integer 	getSize();
+	public Integer  getPrecision();
 	public boolean 	isNullable();
 	String getComment();
+	public void setPrimaryKey(int pkIndex);
+	public boolean  isPrimaryKey();
 
 }

@@ -56,7 +56,7 @@ public class PlaintextRendererTest {
 
 	@Test
 	public void testRenderColumn() {
-		IDbColumn column = new DbColumnDefaultData("dummyColumn", "dummyType", "dummy-comment");
+		IDbColumn column = new DbColumnDefaultData("dummyColumn", "dummyType", "dummy-comment", 0, 0, null);
 		renderer.renderColumn(column);
 		String result = out.toString();
 		

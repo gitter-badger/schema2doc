@@ -68,8 +68,23 @@ public class GenericDbScannerTest {
 	    			);
 	    		});
 	}
-
 	
+
+	@Test
+	public void testGetColumns_TT_TASKS() {
+		IScanner scanner = new GenericDbScanner(conn);
+	    scanner.getTables()
+	           .filter(tbl -> tbl.getName().equalsIgnoreCase("TT_PROJECT"))
+	           .forEach(tbl ->
+	    		{
+	    			scanner.getColumns(tbl).forEach(clmn ->
+	    			{
+	    				assertNotNull(clmn);
+		    			LOG.debug("column: " + clmn + ", " + clmn.getComment());
+	    			}
+	    			);
+	    		});
+	}	
 	@Test(expected = ScannerException.class) 
 	public void testGetTablesOnClosedConnection() throws Exception {
 		IScanner scanner = new GenericDbScanner(conn);

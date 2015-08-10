@@ -53,7 +53,7 @@ public final class LoggingAdapterRenderer implements IRenderer {
 	@Override
 	public void renderColumn(@NotNull IDbColumn column) {
 		if (column != null) {
-			LOG.debug("| {}: {}, {}", column.getName(), column.getTypename(), column.getLength());
+			LOG.debug("| {}: {}, {}", column.getName(), column.getTypename(), column.getSize());
 		} else {
 			LOG.error("column is null");
 		}
