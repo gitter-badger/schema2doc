@@ -38,12 +38,15 @@ public class AsciidocRenderer implements IRenderer {
 	 */
 	@Override
 	public void beginRenderTable(@NotNull IDbTable table) {
-		out.println("-- " + Require.notNull(table).getName());
+		out.println("=== " + 
+					Convert.nvl2(Require.notNull(table, "table").getCatalog(), table.getCatalog() + ".", "") +
+					Convert.nvl2(table.getSchema(), table.getSchema() + "." , "") +
+					table.getName());
 		out.println(Convert.nvl(table.getComment(), ""));
 		
 		// begin table columns..
 		out.println("|===");
-		out.println("|Column | PK | Type | Comment | Size");
+		out.println("|Column | PK | Type | Comment | Size | Constraints");
 	}
 
 	/* (non-Javadoc)
@@ -61,10 +64,13 @@ public class AsciidocRenderer implements IRenderer {
 	@Override
 	public void renderColumn(@NotNull final IDbColumn column) {
 		out.println("| " + Require.notNull(column, "column").getName()); 
-		out.println("| " + (column.isPrimaryKey() ? "X" : ""));
+		out.println("| " + (column.isPrimaryKey() ? "PK " + column.getPrimaryKeyIndex() : ""));
 		out.println("| " + column.getTypename()); 
 		out.println("| " + Convert.nvl(column.getComment(), ""));
 		out.println("| " + (column.getSize() != null ? column.getSize().toString() : ""));
+		out.println("| " + (column.getForeignKeyReferences().findAny().isPresent() ? 
+				column.getForeignKeyReferences().findAny().get().getName() 
+				: ""));
 	}
 
 	@Override

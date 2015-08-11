@@ -63,7 +63,7 @@ public class GenericDbScanner implements IScanner {
 	 */
 	@Override
 	@NotNull public Stream<IDbColumn> getColumns(@NotNull final IDbTable table) {
-		LOG.debug("retrieve columns" + table);
+		LOG.debug("retrieve columns for " + table);
 		try {
 			List<IDbColumn> columns = new ArrayList<>();
 			ResultSet rs = connection.getMetaData().getColumns(
@@ -84,11 +84,14 @@ public class GenericDbScanner implements IScanner {
 		    			));
 	        }
 		    
+		    LOG.debug("retrieve primary key information for " + table);
 		    try {
 			    rs = connection.getMetaData().getPrimaryKeys(table.getCatalog(), table.getSchema(), table.getName());
 			    while (rs.next()) {
 				    String columnName = rs.getString("COLUMN_NAME");
 				    int    keySeq     = rs.getInt("KEY_SEQ");
+				    LOG.debug("found PK column: " + columnName + " index " + keySeq);
+				    
 						columns
 							.stream()
 							.filter(c -> c.getName().equals(columnName))
@@ -96,9 +99,47 @@ public class GenericDbScanner implements IScanner {
 							.ifPresent(c -> c.setPrimaryKey(keySeq));
 		        } 
 		    } catch (SQLException ex) {
-	        	LOG.error("primary key information not processed for table " + table.getName(), ex);
+	        	LOG.error("primary key information not processed for " + table, ex);
 	        }
 		    
+		    
+		    LOG.debug("retrieve foreign key information for " + table);
+		    try {
+			    rs = connection.getMetaData().getImportedKeys(table.getCatalog(), table.getSchema(), table.getName());
+			    
+			    while (rs.next()) {
+
+				    String fkColumnName = rs.getString("FKCOLUMN_NAME");
+				    String name = rs.getString("FK_NAME");
+					int keySeq = rs.getInt("KEY_SEQ");
+					String refCatalog =  rs.getString("PKTABLE_CAT");
+					String refSchema  =  rs.getString("PKTABLE_SCHEM");
+					String refTable   =  rs.getString("PKTABLE_NAME");
+					String refColumn  =  rs.getString("PKCOLUMN_NAME");
+					
+					LOG.debug("found foreign key reference for " + fkColumnName + " to " + refTable + "." + refColumn);
+					
+			    	columns.stream()
+			    		   .filter(c -> c.getName().equals(fkColumnName))
+			    		   .findFirst()
+			    		   .ifPresent(c-> {			    			   
+								c.addForeignKeyReference(
+										   new DbForeignKeyReference(
+												   name,
+												   fkColumnName,
+												   keySeq,
+												   refCatalog,
+												   refSchema,
+												   refTable,
+												   refColumn
+												   )
+										   );			    			   
+			    		   });				    
+				    
+		        } 
+		    } catch (SQLException ex) {
+	        	LOG.error("foreign key information not processed for table " + table.getName(), ex);
+	        }		    
 		    
 		    return columns.stream();
 		} catch (Exception ex) {

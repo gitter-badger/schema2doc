@@ -21,15 +21,31 @@ public class MockScanner implements IScanner {
 	public static final Map<IDbTable,  Set<IDbColumn>> COLUMNS = new TreeMap<>();
 	
 	public MockScanner() {
-		TABLES.add(new DbTableDefaultData("dummy1tbl" , "dummy1 table documentation"));
-		TABLES.add(new DbTableDefaultData("another_table" , "another table documentation"));
+		DbTableDefaultData personTable   = new DbTableDefaultData("person" , "a person");
+		DbTableDefaultData addressTable  = new DbTableDefaultData("address", "a persons address");
 		
-		TABLES.forEach(table -> {
-			Set<IDbColumn> tcolumns = new TreeSet<>();
-			tcolumns.add(new DbColumnDefaultData("ID" , "Number", "my key", 0, 0, null));
-			tcolumns.add(new DbColumnDefaultData("Name" , "Varchar2", "name of entity", 0, 0, null));
-			COLUMNS.put(table, tcolumns);
-		});
+		TABLES.add(personTable);
+		TABLES.add(addressTable);
+		
+		Set<IDbColumn> tcolumns = new TreeSet<>();
+		DbColumnDefaultData column = new DbColumnDefaultData("ID" , "Number", "my key", 22, 0, "NO");
+		column.setPrimaryKey(1);
+		tcolumns.add(column);
+		tcolumns.add(new DbColumnDefaultData("Name" , "Varchar2", "name of person", 80, 0, null));
+		COLUMNS.put(personTable, tcolumns);
+
+		tcolumns = new TreeSet<>();
+		column = new DbColumnDefaultData("ID" , "Number", "address-id", 22, 0, "NO");
+		column.setPrimaryKey(1);
+		tcolumns.add(column);
+		tcolumns.add(new DbColumnDefaultData("street" , "Varchar2", "street", 80, 0, null));
+		column = new DbColumnDefaultData("person_id" , "Number", "address-id", 22, 0, "NO");
+		column.addForeignKeyReference(
+					new DbForeignKeyReference("fk_adressOfPerson", column.getName(), 1, 
+					personTable.getCatalog(), personTable.getSchema(), personTable.getName(), 
+					"ID"));
+		tcolumns.add(column);
+		COLUMNS.put(addressTable, tcolumns);		
 	}
 
 	/* (non-Javadoc)

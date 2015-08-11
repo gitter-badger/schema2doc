@@ -85,5 +85,5 @@ public class AsciidocRendererTest {
 		content.stream().forEach(s -> LOG.debug("output: " + s));
 		outFile.deleteOnExit();
 	}
-	
+
 }

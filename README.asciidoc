@@ -11,7 +11,7 @@ image:http://codecov.io/github/man-at-home/schema2doc/coverage.svg?branch=master
 image:https://scan.coverity.com/projects/5964/badge.svg ["coverity", link="https://scan.coverity.com/projects/5964"]
 image:https://img.shields.io/github/license/man-at-home/schema2doc.svg  ["license", link="https://github.com/man-at-home/schema2doc"]
 
-hint: not functional yet!
+WARNING: not functional yet!
 
 generating markup based documentation from a oracle database. Document tables and more with asciidoc.
 use it in build tools like gradle.

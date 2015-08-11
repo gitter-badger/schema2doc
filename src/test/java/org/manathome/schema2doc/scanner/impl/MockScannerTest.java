@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.IScanner;
 
 /** tests. */
@@ -23,7 +24,11 @@ public class MockScannerTest {
 
 	@Test
 	public void testGetColumns() {
-		assertEquals("2 columns expected", 2, scanner.getColumns(scanner.getTables().findFirst().get()).count());
+	    IDbTable personTable = scanner.getTables().filter(tbl -> tbl.getName().equalsIgnoreCase("person")).findFirst().get();
+		assertEquals("2 columns in person table expected", 
+				2, 
+				scanner.getColumns(personTable).count()
+						);
 	}
 
 }

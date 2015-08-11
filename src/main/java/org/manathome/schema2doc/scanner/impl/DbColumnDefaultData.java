@@ -1,8 +1,13 @@
 package org.manathome.schema2doc.scanner.impl;
 
 import org.manathome.schema2doc.scanner.IDbColumn;
+import org.manathome.schema2doc.scanner.IForeignKeyReference;
 import org.manathome.schema2doc.util.NotNull;
 import org.manathome.schema2doc.util.Require;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 /** description of one column in a specific table. 
  */
@@ -15,6 +20,7 @@ public class DbColumnDefaultData implements IDbColumn {
 	private Integer precision = 0;
 	private boolean isNullable = false;
 	private int     primaryKeyIndex = 0;
+	private List<IForeignKeyReference> foreignKeyReferences = new ArrayList<>();
 
 	public DbColumnDefaultData(
 			@NotNull final String name, 
@@ -85,6 +91,21 @@ public class DbColumnDefaultData implements IDbColumn {
 	@Override
 	public boolean isPrimaryKey() { 
 		return this.primaryKeyIndex > 0; 
+	}
+
+	@Override
+	public Integer getPrimaryKeyIndex() {
+		return this.primaryKeyIndex;
+	}
+
+	@Override
+	public void addForeignKeyReference(@NotNull IForeignKeyReference reference) {
+		foreignKeyReferences.add(reference);
+	}
+
+	@Override
+	public Stream<IForeignKeyReference> getForeignKeyReferences() {
+		return foreignKeyReferences.stream();
 	}
 
 }

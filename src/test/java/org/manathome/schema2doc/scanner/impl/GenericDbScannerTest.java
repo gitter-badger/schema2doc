@@ -24,8 +24,8 @@ public class GenericDbScannerTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		Class.forName("org.h2.Driver");
-		conn = DriverManager.getConnection("jdbc:h2:./totask2.qa.db", "sa", "");
+		Class.forName(H2ConnectTest.H2_DRIVER_NAME);
+		conn = DriverManager.getConnection(H2ConnectTest.H2_TOTASK2_DB, "sa", "");
 		assertTrue("connetion is open", !conn.isClosed());
 	}
 	

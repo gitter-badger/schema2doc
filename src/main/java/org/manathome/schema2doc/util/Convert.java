@@ -7,4 +7,9 @@ public abstract class Convert {
 	public static <T> T nvl(T nullableReference, @NotNull T nullReplacementValue) {
 		return nullableReference == null ? nullReplacementValue : nullableReference;
 	}
+
+	/** nvl2. */
+	public static <T> T nvl2(T nullableReference, T returnIfNotNull, T returnIfNull) {
+		return nullableReference == null ? returnIfNull : returnIfNotNull;
+	}
 }
