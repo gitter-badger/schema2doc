@@ -1,6 +1,8 @@
 package org.manathome.schema2doc.scanner.impl;
 
 import org.manathome.schema2doc.scanner.IDbTable;
+import org.manathome.schema2doc.util.NotNull;
+import org.manathome.schema2doc.util.Require;
 
 /** test data. */
 public class DbTableDefaultData implements IDbTable {
@@ -10,11 +12,15 @@ public class DbTableDefaultData implements IDbTable {
 		return "Table[" + name + "]";
 	}
 
+	private String catalog;
+	private String schema;
 	private String name;
 	private String comment;
 
-	public DbTableDefaultData(final String name, final String comment) {
-		this.name = name;
+	public DbTableDefaultData(final String catalog, final String schema, @NotNull final String name, final String comment) {
+		this.catalog = catalog;
+		this.schema = schema;
+		this.name = Require.notNull(name, "tableName");
 		this.comment = comment;
 	}
 
@@ -35,12 +41,12 @@ public class DbTableDefaultData implements IDbTable {
 
 	@Override
 	public String getCatalog() {
-		return null;
+		return this.catalog;
 	}
 
 	@Override
 	public String getSchema() {
-		return null;
+		return this.schema;
 	}
 
 }

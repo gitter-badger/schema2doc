@@ -50,6 +50,21 @@ public class Schema2DocTest {
 		
 		outFile.deleteOnExit();
 	}
+
+	/** writes asciidoc example to schema2doc.example.h2.asciidoc file. */
+	@Test
+	public void testH2SampleAsciidocProcess() throws Exception {
+
+		File outFile = new File("src/docs/examples/schema2doc.totask2.qa.db.h2.example.asciidoc");
+		LOG.debug("writing test asciidoc to " + outFile.getAbsolutePath());
+		
+		IRenderer renderer = new AsciidocRenderer(new PrintStream(outFile));
+		Schema2Doc s2d = new Schema2Doc(scanner, renderer);
+		s2d.process();
+		
+		assertTrue("asciidoc not exists", outFile.exists());
+		assertTrue("asciidoc not filled", outFile.length() > 10);
+	}
 	
 	
 	/** writes asciidoc to temp file. */

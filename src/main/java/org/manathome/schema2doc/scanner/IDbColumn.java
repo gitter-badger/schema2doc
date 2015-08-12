@@ -10,10 +10,12 @@ public interface IDbColumn extends Comparable<IDbColumn> {
 	public Integer 	getSize();
 	public Integer  getPrecision();
 	public boolean 	isNullable();
-	String getComment();
-	public void setPrimaryKey(int pkIndex);
+	public String 	getComment();
+	
+	public void 	setPrimaryKey(int pkIndex);
 	public boolean  isPrimaryKey();
 	public Integer  getPrimaryKeyIndex();
-	public void addForeignKeyReference(IForeignKeyReference reference);
+	
+	public void 	addForeignKeyReference(IForeignKeyReference reference);
 	public Stream<IForeignKeyReference> getForeignKeyReferences();
 }

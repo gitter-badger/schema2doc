@@ -44,6 +44,8 @@ public class GenericDbScanner implements IScanner {
 		    while (rs.next()) {
 		    	tables.add(
 		    			new DbTableDefaultData(
+		    			rs.getString("TABLE_CAT"),
+		    			rs.getString("TABLE_SCHEM"),
 		    			rs.getString("TABLE_NAME"),
 		    			rs.getString("REMARKS")
 		    			));

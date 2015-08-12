@@ -46,7 +46,7 @@ public class AsciidocRendererTest {
 
 	@Test
 	public void testRenderTable() {
-		IDbTable table = new DbTableDefaultData("dummyTableName", "dummy-comment");
+		IDbTable table = new DbTableDefaultData(null, null, "dummyTableName", "dummy-comment");
 		renderer.beginRenderTable(table);
 		renderer.endRenderTable(table);
 		String result = out.toString();
@@ -70,7 +70,7 @@ public class AsciidocRendererTest {
 	public void testRenderToFile() throws Exception {
 		File outFile = File.createTempFile("asciidoc.renderer.test.out-", ".adoc");
 		try (AsciidocRenderer renderer = new AsciidocRenderer(new PrintStream(new FileOutputStream(outFile)))) {
-			IDbTable table = new DbTableDefaultData("dummyTableName", "dummy-comment");
+			IDbTable table = new DbTableDefaultData(null, null, "dummyTableName", "dummy-comment");
 			renderer.beginRenderTable(table);
 			renderer.endRenderTable(table);
 			

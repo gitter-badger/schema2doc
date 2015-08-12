@@ -21,8 +21,8 @@ public class MockScanner implements IScanner {
 	public static final Map<IDbTable,  Set<IDbColumn>> COLUMNS = new TreeMap<>();
 	
 	public MockScanner() {
-		DbTableDefaultData personTable   = new DbTableDefaultData("person" , "a person");
-		DbTableDefaultData addressTable  = new DbTableDefaultData("address", "a persons address");
+		DbTableDefaultData personTable   = new DbTableDefaultData(null, "mock", "person" , "a person");
+		DbTableDefaultData addressTable  = new DbTableDefaultData(null, "mock", "address", "a persons address");
 		
 		TABLES.add(personTable);
 		TABLES.add(addressTable);

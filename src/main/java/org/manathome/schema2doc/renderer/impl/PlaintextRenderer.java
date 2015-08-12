@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
+import java.util.Date;
 
 /** render output to console (out).. */
 public class PlaintextRenderer implements IRenderer {
@@ -59,6 +60,33 @@ public class PlaintextRenderer implements IRenderer {
 	public void close() throws Exception {
 		out.flush();
 		out = null;
+	}
+
+	@Override
+	public void beginRenderDocumentation() {
+		out.println("*********************************************************************");
+		out.println("** schema2doc plaintext documenation                               **");
+		out.println("*********************************************************************");
+	}
+
+	@Override
+	public void endRenderDocumentation() {
+		out.println("");
+		out.println("created at " + new Date());		
+	}
+
+	@Override
+	public void renderCatalog(String catalog) {
+		out.println("=====================================================================");
+		out.println("== Catalog: " + catalog);
+		out.println("=====================================================================");
+	}
+
+	@Override
+	public void renderSchema(String schema) {
+		out.println("=====================================================================");
+		out.println("== Schema: " + schema);
+		out.println("=====================================================================");
 	}
 
 }

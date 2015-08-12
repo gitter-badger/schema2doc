@@ -44,7 +44,7 @@ public class PlaintextRendererTest {
 
 	@Test
 	public void testRenderTable() {
-		IDbTable table = new DbTableDefaultData("dummyTableName", "dummy-comment");
+		IDbTable table = new DbTableDefaultData(null, "dummy", "dummyTableName", "dummy-comment");
 		renderer.beginRenderTable(table);
 		renderer.endRenderTable(table);
 		String result = out.toString();

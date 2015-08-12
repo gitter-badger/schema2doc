@@ -62,7 +62,30 @@ public final class LoggingAdapterRenderer implements IRenderer {
 
 	@Override
 	public void close() throws Exception {
-		// nothing to close here..
+	}
+
+	@Override
+	public void beginRenderDocumentation() {
+		LOG.debug("begin render documentation");
+		wrappedRenderer.beginRenderDocumentation();		
+	}
+
+	@Override
+	public void endRenderDocumentation() {
+		LOG.debug("end render documentation");
+		wrappedRenderer.endRenderDocumentation();				
+	}
+
+	@Override
+	public void renderCatalog(String catalog) {
+		LOG.debug("render catalog " + catalog);
+		wrappedRenderer.renderCatalog(catalog);		
+	}
+
+	@Override
+	public void renderSchema(String schema) {
+		LOG.debug("render schema " + schema);
+		wrappedRenderer.renderSchema(schema);		
 	}
 
 }

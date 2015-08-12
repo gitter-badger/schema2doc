@@ -1,11 +1,16 @@
 package org.manathome.schema2doc;
 
+
 import org.manathome.schema2doc.renderer.IRenderer;
+import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.IScanner;
 import org.manathome.schema2doc.util.NotNull;
 import org.manathome.schema2doc.util.Require;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /** entry point to tool. */
 public class Schema2Doc {
@@ -15,6 +20,7 @@ public class Schema2Doc {
 	private IScanner  scanner;
 	private IRenderer renderer;
 	private int tableCnt = 0;
+	private boolean isGroupedByCatalogAndSchema = true;
 	  
 	public Schema2Doc(@NotNull final IScanner scanner, @NotNull final IRenderer renderer) {
 		this.scanner = Require.notNull(scanner);
@@ -29,14 +35,47 @@ public class Schema2Doc {
 	public void process() throws Exception {
 		LOG.info("running Schema2Doc ..");
 		
-			scanner.getTables().forEach(table -> 
-			{
+		
+			renderer.beginRenderDocumentation();			
+			
+			List<IDbTable> tables = null;			
+			if (isGroupedByCatalogAndSchema()) {
+				tables = scanner.getTables()
+						.sorted((tbl1, tbl2) -> tbl1.fqnName().compareTo(tbl2.fqnName()))
+						.collect(Collectors.toList());
+			} else {
+				tables = scanner.getTables()
+								.collect(Collectors.toList());
+			}
+			
+			String currentCatalog = null;
+			String currentSchema  = null;
+			
+			for (IDbTable table : tables) {	
+				if (isGroupedByCatalogAndSchema() && currentCatalog != table.getCatalog()) {
+					currentCatalog = table.getCatalog();
+					currentSchema = null;
+					renderer.renderCatalog(currentCatalog);
+				}
+				if (isGroupedByCatalogAndSchema() && currentSchema != table.getSchema()) {
+					currentSchema = table.getSchema();
+					renderer.renderSchema(currentSchema);
+				}				
 				renderer.beginRenderTable(table);
 				tableCnt++;
 				scanner.getColumns(table).forEach(column -> renderer.renderColumn(column));
 				renderer.endRenderTable(table);
-			});
+			}
+			renderer.endRenderDocumentation();
 		
 		LOG.info("running Schema2Doc done.");	
+	}
+
+	public boolean isGroupedByCatalogAndSchema() {
+		return isGroupedByCatalogAndSchema;
+	}
+
+	public void setGroupedByCatalogAndSchema(boolean isGroupedByCatalogAndSchema) {
+		this.isGroupedByCatalogAndSchema = isGroupedByCatalogAndSchema;
 	}
 }
