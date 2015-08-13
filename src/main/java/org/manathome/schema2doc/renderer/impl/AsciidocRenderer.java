@@ -1,10 +1,5 @@
-/**
- * 
- */
 package org.manathome.schema2doc.renderer.impl;
 
-
-import org.hamcrest.core.Is;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbTable;
@@ -14,7 +9,7 @@ import org.manathome.schema2doc.util.Require;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Date;
 
 /**
@@ -27,10 +22,10 @@ public class AsciidocRenderer implements IRenderer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AsciidocRenderer.class);
     
-    private PrintStream out = null;
+    private PrintWriter out = null;
 
     /** out stream to render to. */
-	public AsciidocRenderer(@NotNull final PrintStream out) {
+	public AsciidocRenderer(@NotNull final PrintWriter out) {
 		LOG.debug("using asciidoc renderer..");
 		this.out = Require.notNull(out, "required: out");
 	}

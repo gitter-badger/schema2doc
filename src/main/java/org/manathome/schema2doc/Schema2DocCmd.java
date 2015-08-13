@@ -19,6 +19,7 @@ import org.manathome.schema2doc.util.Require;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -48,7 +49,7 @@ public class Schema2DocCmd {
 		final CommandLine cmdLine = parseArguments(args);
 
 		if (cmdLine.hasOption("help")) {
-			printHelp(new PrintWriter(System.out));
+			printHelp(new PrintWriter(new OutputStreamWriter(System.out, "UTF-8")));
 		} else {
 
 			LOG.debug("prepare schema2doc..");
@@ -78,7 +79,7 @@ public class Schema2DocCmd {
 
 	/** create suitable renderer from command line args. */
 	@NotNull public static IRenderer prepareRenderer(@NotNull final CommandLine cmdLine) throws Exception {
-		return new AsciidocRenderer(System.out); // TBD: fill with commandline
+		return new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(System.out, "UTF-8"))); // TBD: fill with commandline
 	}
 
 	/** create suitable scanner from command line args. */

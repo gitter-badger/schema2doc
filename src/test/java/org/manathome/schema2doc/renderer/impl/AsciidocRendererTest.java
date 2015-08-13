@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -30,12 +31,12 @@ public class AsciidocRendererTest {
 
 
 	private IRenderer renderer = null;
-	private ByteArrayOutputStream out = null;
+	private ByteArrayOutputStream bout = null;
 	
 	@Before
 	public void setUp() throws Exception {
-		out = new ByteArrayOutputStream();
-		renderer = new AsciidocRenderer(new PrintStream(out));
+		bout = new ByteArrayOutputStream();
+		renderer = new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(bout, "UTF-8"), true));
 	}
 
 	@Test
@@ -45,21 +46,21 @@ public class AsciidocRendererTest {
 
 
 	@Test
-	public void testRenderTable() {
+	public void testRenderTable() throws Exception {
 		IDbTable table = new DbTableDefaultData(null, null, "dummyTableName", "dummy-comment");
 		renderer.beginRenderTable(table);
 		renderer.endRenderTable(table);
-		String result = out.toString();
+		String result = bout.toString("UTF-8");
 		
 		assertThat(result, containsString("dummyTableName"));
 		assertThat(result, containsString("dummy-comment"));
 	}
 
 	@Test
-	public void testRenderColumn() {
+	public void testRenderColumn() throws Exception {
 		IDbColumn column = new DbColumnDefaultData("dummyColumn", "dummyType", "dummy-comment", 0, 0, null);
 		renderer.renderColumn(column);
-		String result = out.toString();
+		String result = bout.toString("UTF-8");
 		
 		assertThat(result, containsString("dummyColumn"));
 		assertThat(result, containsString("dummyType"));
@@ -69,7 +70,8 @@ public class AsciidocRendererTest {
 	@Test
 	public void testRenderToFile() throws Exception {
 		File outFile = File.createTempFile("asciidoc.renderer.test.out-", ".adoc");
-		try (AsciidocRenderer renderer = new AsciidocRenderer(new PrintStream(new FileOutputStream(outFile)))) {
+		try (AsciidocRenderer renderer = new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(
+					    new FileOutputStream(outFile), "UTF-8"), true))) {
 			IDbTable table = new DbTableDefaultData(null, null, "dummyTableName", "dummy-comment");
 			renderer.beginRenderTable(table);
 			renderer.endRenderTable(table);

@@ -14,7 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.PrintStream;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,7 +43,8 @@ public class Schema2DocTest {
 		
 		LOG.debug("writing test asciidoc to " + outFile.getAbsolutePath());
 		
-		IRenderer renderer = new AsciidocRenderer(new PrintStream(outFile));
+		IRenderer renderer = new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(
+			    new FileOutputStream(outFile), "UTF-8"), true));
 		Schema2Doc s2d = new Schema2Doc(scanner, renderer);
 		s2d.process();
 		
@@ -58,7 +61,7 @@ public class Schema2DocTest {
 		File outFile = new File("src/docs/examples/schema2doc.totask2.qa.db.h2.example.asciidoc");
 		LOG.debug("writing test asciidoc to " + outFile.getAbsolutePath());
 		
-		IRenderer renderer = new AsciidocRenderer(new PrintStream(outFile));
+		IRenderer renderer = new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(System.out, "UTF-8")));
 		Schema2Doc s2d = new Schema2Doc(scanner, renderer);
 		s2d.process();
 		
@@ -75,7 +78,9 @@ public class Schema2DocTest {
 		
 		LOG.debug("writing mock data asciidoc to " + outFile.getAbsolutePath());
 		
-		IRenderer asciiDocRenderer = new AsciidocRenderer(new PrintStream(outFile));
+		IRenderer asciiDocRenderer = new AsciidocRenderer(
+				new PrintWriter(new OutputStreamWriter(
+					    new FileOutputStream(outFile), "UTF-8"), true));
 		Schema2Doc s2d = new Schema2Doc(new MockScanner(), asciiDocRenderer);
 		s2d.process();
 		

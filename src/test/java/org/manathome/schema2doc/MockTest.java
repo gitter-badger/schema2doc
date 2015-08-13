@@ -9,6 +9,10 @@ import org.manathome.schema2doc.renderer.impl.AsciidocRenderer;
 import org.manathome.schema2doc.scanner.IScanner;
 import org.manathome.schema2doc.scanner.impl.MockScanner;
 
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+
+
 /** tests. */
 public class MockTest {
 
@@ -18,7 +22,7 @@ public class MockTest {
 	@Before
 	public void setUp() throws Exception {
 		scanner =  new MockScanner();
-		renderer = new AsciidocRenderer(System.out);
+		renderer = new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(System.out, "UTF-8")));
 	}
 
 	@Test

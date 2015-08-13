@@ -12,7 +12,8 @@ import org.manathome.schema2doc.scanner.impl.DbColumnDefaultData;
 import org.manathome.schema2doc.scanner.impl.DbTableDefaultData;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 
 /**
  * tests.
@@ -27,7 +28,7 @@ public class PlaintextRendererTest {
 	@Before
 	public void setUp() throws Exception {
 		out = new ByteArrayOutputStream();
-		renderer = new LoggingAdapterRenderer(new PlaintextRenderer(new PrintStream(out)));
+		renderer = new LoggingAdapterRenderer(new PlaintextRenderer(new PrintWriter(new OutputStreamWriter(out, "UTF-8"), true)));
 	}
 
 	@Test
@@ -43,11 +44,11 @@ public class PlaintextRendererTest {
 	}
 
 	@Test
-	public void testRenderTable() {
+	public void testRenderTable() throws Exception {
 		IDbTable table = new DbTableDefaultData(null, "dummy", "dummyTableName", "dummy-comment");
 		renderer.beginRenderTable(table);
 		renderer.endRenderTable(table);
-		String result = out.toString();
+		String result = out.toString("UTF-8");
 		
 		assertThat(result, containsString("dummyTableName"));
 		assertThat(result, containsString("dummy-comment"));
@@ -55,10 +56,10 @@ public class PlaintextRendererTest {
 	}
 
 	@Test
-	public void testRenderColumn() {
+	public void testRenderColumn() throws Exception {
 		IDbColumn column = new DbColumnDefaultData("dummyColumn", "dummyType", "dummy-comment", 0, 0, null);
 		renderer.renderColumn(column);
-		String result = out.toString();
+		String result = out.toString("UTF-8");
 		
 		assertThat(result, containsString("dummyColumn"));
 		assertThat(result, containsString("dummyType"));

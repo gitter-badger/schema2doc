@@ -9,7 +9,7 @@ import org.manathome.schema2doc.util.Require;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Date;
 
 /** render output to console (out).. */
@@ -17,10 +17,10 @@ public class PlaintextRenderer implements IRenderer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlaintextRenderer.class);
    
-    private PrintStream out = null;
+    private PrintWriter out = null;
 
     /** out stream to render to. */
-	public PlaintextRenderer(@NotNull final PrintStream out) {
+	public PlaintextRenderer(@NotNull final PrintWriter out) {
 		LOG.debug("using console renderer..");
 		this.out = Require.notNull(out, "required: out");
 	}
