@@ -3,6 +3,8 @@ package org.manathome.schema2doc.scanner;
 import org.manathome.schema2doc.util.Convert;
 import org.manathome.schema2doc.util.NotNull;
 
+import java.util.stream.Stream;
+
 /** meta data for database table. */
 public interface IDbTable extends Comparable<IDbTable>{
 	
@@ -24,4 +26,10 @@ public interface IDbTable extends Comparable<IDbTable>{
 		       Convert.nvl2(getSchema(), getSchema() + ".", "") +
 		       getName();
 	}
+
+	/** table privileges like select and update or delete (grants). */
+	public void addPrivilege(@NotNull IDbPrivilege dbPrivilege);
+	
+	/** list of users with grants on this table. */
+	@NotNull public Stream<IDbPrivilege> getPrivileges();
 }

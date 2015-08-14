@@ -23,6 +23,12 @@ public class MockScanner implements IScanner {
 	public MockScanner() {
 		DbTableDefaultData personTable   = new DbTableDefaultData(null, "mock", "person" , "a person");
 		DbTableDefaultData addressTable  = new DbTableDefaultData(null, "mock", "address", "a persons address");
+	
+		personTable.addPrivilege(new DbPrivilegeDefaultData("me", "select"));
+		personTable.addPrivilege(new DbPrivilegeDefaultData("me", "update"));
+		personTable.addPrivilege(new DbPrivilegeDefaultData("me", "delete"));
+		personTable.addPrivilege(new DbPrivilegeDefaultData("you", "select"));
+		addressTable.addPrivilege(new DbPrivilegeDefaultData("me", "select"));
 		
 		TABLES.add(personTable);
 		TABLES.add(addressTable);

@@ -55,6 +55,20 @@ public class AsciidocRendererTest {
 		assertThat(result, containsString("dummyTableName"));
 		assertThat(result, containsString("dummy-comment"));
 	}
+	
+	@Test 
+	public void testRenderCatalog() throws Exception {
+		renderer.renderCatalog("Sample Catalog");
+		String result = bout.toString("UTF-8");
+		assertThat(result, containsString("Sample Catalog"));
+	}
+	
+	@Test 
+	public void testRenderSchema() throws Exception {
+		renderer.renderSchema("SampleSchema");
+		String result = bout.toString("UTF-8");
+		assertThat(result, containsString("SampleSchema"));
+	}
 
 	@Test
 	public void testRenderColumn() throws Exception {

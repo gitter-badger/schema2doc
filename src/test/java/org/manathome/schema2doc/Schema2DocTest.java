@@ -61,7 +61,9 @@ public class Schema2DocTest {
 		File outFile = new File("src/docs/examples/schema2doc.totask2.qa.db.h2.example.asciidoc");
 		LOG.debug("writing test asciidoc to " + outFile.getAbsolutePath());
 		
-		IRenderer renderer = new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(System.out, "UTF-8")));
+		IRenderer renderer = new AsciidocRenderer(
+				new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"), true)
+				);
 		Schema2Doc s2d = new Schema2Doc(scanner, renderer);
 		s2d.process();
 		

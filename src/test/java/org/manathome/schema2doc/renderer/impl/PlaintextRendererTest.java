@@ -66,4 +66,31 @@ public class PlaintextRendererTest {
 		assertThat(result, containsString("dummy-comment"));
 	}
 	
+	@Test 
+	public void testRenderCatalog() throws Exception {
+		renderer.renderCatalog("Sample Catalog");
+		String result = out.toString("UTF-8");
+		assertThat(result, containsString("Sample Catalog"));
+	}
+	
+	@Test 
+	public void testRenderSchema() throws Exception {
+		renderer.renderSchema("SampleSchema");
+		String result = out.toString("UTF-8");
+		assertThat(result, containsString("SampleSchema"));
+	}
+
+	@Test 
+	public void testRenderDocument() throws Exception {
+		renderer.beginRenderDocumentation();
+		renderer.endRenderDocumentation();
+		String result = out.toString("UTF-8");
+		assertThat(result, containsString("schema2doc plaintext documentation"));
+		assertThat(result, containsString("created"));
+	}
+
+	@Test 
+	public void testClose() throws Exception {
+		renderer.close();
+	}	
 }

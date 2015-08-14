@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /** tests. */
-public class RequireTest {
+public class EnsureTest {
 
 	@Before
 	public void setUp() throws Exception {
@@ -14,18 +14,18 @@ public class RequireTest {
 
 	@Test
 	public void testRequire() {
-		assertEquals("not null", Require.notNull("not null"));
-		assertEquals("", Require.notNull(""));
-		assertEquals("x", Require.notNull("x", "x is set"));
+		assertEquals("not null", Ensure.notNull("not null"));
+		assertEquals("", Ensure.notNull(""));
+		assertEquals("x", Ensure.notNull("x", "x is set"));
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void testRequireIsNull() {
-		Require.notNull(null);
+		Ensure.notNull(null);
 	}
 	
 	@Test(expected = NullPointerException.class)
 	public void testRequireIsNullWithMsg() {
-		Require.notNull(null, "require not satisfied");
+		Ensure.notNull(null, "s not satisfied");
 	}
 }

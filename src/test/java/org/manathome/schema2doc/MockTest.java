@@ -31,5 +31,22 @@ public class MockTest {
 		s2d.process();
 		assertEquals("2 tables", 2, s2d.getRenderedTables());
 	}
+	
+	@Test
+	public void testMockData() throws Exception {
+		assertEquals("2 tables", 2L, scanner.getTables().count());
+		assertEquals("2 tables granted to me", 2L,
+				scanner.getTables()
+		       .filter(tbl -> tbl.getPrivileges()
+		    		             .anyMatch(priv -> priv.getGrantee().equals("me"))
+		    		  )
+		       .count());
+		       
+		assertTrue("column person_id", 
+					scanner.getTables().anyMatch(tbl -> 
+						scanner.getColumns(tbl).anyMatch(clmn -> clmn.getName().equals("person_id"))
+					)
+				  );
+	}
 
 }

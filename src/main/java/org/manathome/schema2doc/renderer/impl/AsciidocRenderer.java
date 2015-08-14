@@ -2,6 +2,7 @@ package org.manathome.schema2doc.renderer.impl;
 
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IDbColumn;
+import org.manathome.schema2doc.scanner.IDbPrivilege;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.util.Convert;
 import org.manathome.schema2doc.util.NotNull;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * asciidoc output.
@@ -67,6 +69,7 @@ public class AsciidocRenderer implements IRenderer {
 	public void endRenderTable(@NotNull final IDbTable table) {
 		out.println("|==="); // end columns table
 		out.println();
+		out.println("Grants: " + table.getPrivileges().map(IDbPrivilege::display).collect(Collectors.joining(", ")));
 	}
 
 	/* (non-Javadoc)

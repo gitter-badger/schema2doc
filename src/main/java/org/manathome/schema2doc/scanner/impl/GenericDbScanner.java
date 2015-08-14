@@ -17,7 +17,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 
-/** get meta data by jdbc onboard methods. */
+/** get meta data by jdbc onboard methods. 
+ * 
+ * @see <a href="http://docs.oracle.com/javase/8/docs/api/java/sql/DatabaseMetaData.html">DatabaseMetaData</a>
+ * */
 public class GenericDbScanner implements IScanner {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(GenericDbScanner.class);
@@ -50,6 +53,21 @@ public class GenericDbScanner implements IScanner {
 		    			rs.getString("REMARKS")
 		    			));
 	        }
+		    
+		    for (IDbTable table : tables) {
+				rs = connection.getMetaData()
+						.getTablePrivileges(table.getCatalog(), 
+	  									    table.getSchema(),
+											table.getName());
+			    while (rs.next()) {
+			    	table.addPrivilege(new DbPrivilegeDefaultData(
+			    				rs.getString("GRANTEE"),
+			    				rs.getString("PRIVILEGE"))
+			    			);
+		        }
+		    }
+		    
+		    
 		    return tables.stream();
 		} catch (Exception ex) {
 			throw new ScannerException("error retrieving tables", ex);

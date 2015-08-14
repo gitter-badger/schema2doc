@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.IScanner;
 import org.manathome.schema2doc.scanner.ScannerException;
@@ -71,20 +72,40 @@ public class GenericDbScannerTest {
 	
 
 	@Test
-	public void testGetColumns_TT_TASKS() {
+	public void testGetColumns_TT_PROJECT() {
 		IScanner scanner = new GenericDbScanner(conn);
 	    scanner.getTables()
 	           .filter(tbl -> tbl.getName().equalsIgnoreCase("TT_PROJECT"))
-	           .forEach(tbl ->
+	           .forEach(tbl -> // tt_project only
 	    		{
 	    			scanner.getColumns(tbl).forEach(clmn ->
 	    			{
 	    				assertNotNull(clmn);
 		    			LOG.debug("column: " + clmn + ", " + clmn.getComment());
+		    			assertTrue("ID is pk", !clmn.getName().equals("ID") || clmn.isPrimaryKey());
 	    			}
 	    			);
 	    		});
-	}	
+	}
+
+	@Test
+	public void testForeingKey_TT_TASK() {
+		IScanner scanner = new GenericDbScanner(conn);
+	    IDbTable tbl = scanner.getTables()
+	           .filter(t -> t.getName().equalsIgnoreCase("TT_TASK"))
+	           .findFirst()
+	           .get();
+	    
+	    assertNotNull(tbl);
+	    
+	    IDbColumn col = scanner.getColumns(tbl)
+	    			           .filter(clmn -> clmn.getName().equals("PROJECT_ID"))
+	    		               .findFirst()
+	    		               .get();
+	    assertNotNull(col.getForeignKeyReferences());
+	    assertEquals("1 fk in project_id column", 1, col.getForeignKeyReferences().count());
+	}
+	
 	@Test(expected = ScannerException.class) 
 	public void testGetTablesOnClosedConnection() throws Exception {
 		IScanner scanner = new GenericDbScanner(conn);

@@ -65,7 +65,7 @@ public class PlaintextRenderer implements IRenderer {
 	@Override
 	public void beginRenderDocumentation() {
 		out.println("*********************************************************************");
-		out.println("** schema2doc plaintext documenation                               **");
+		out.println("** schema2doc plaintext documentation                              **");
 		out.println("*********************************************************************");
 	}
 
