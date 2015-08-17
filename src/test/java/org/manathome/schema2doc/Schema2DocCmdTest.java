@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
+import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IScanner;
 import org.manathome.schema2doc.scanner.impl.GenericDbScanner;
 import org.manathome.schema2doc.scanner.impl.H2ConnectTest;
@@ -37,6 +38,22 @@ public class Schema2DocCmdTest {
 		assertTrue("connection arg found", cmd.hasOption("connection"));
 		assertTrue("scanner arg found", cmd.hasOption("scanner"));
 		assertEquals("scanner is Mock", "Mock", cmd.getOptionValue("scanner"));
+	}
+	
+	@Test
+	public void testPrepareMockScanner() throws Exception {
+		
+		IScanner scanner = Schema2DocCmd.prepareScanner("Mock", null, null, null, null);
+		assertNotNull(scanner);
+		assertTrue(scanner.getClass().getName().contains("Mock"));
+	}
+
+	@Test
+	public void testPrepareAsciidocRenderer() throws Exception {
+		
+		IRenderer renderer = Schema2DocCmd.prepareRenderer();
+		assertNotNull(renderer);
+		assertTrue(renderer.getClass().getName().contains("Ascii"));
 	}
 	
 	@Test
@@ -111,6 +128,7 @@ public class Schema2DocCmdTest {
 	@Test
 	public void testHelp() throws Exception {
 		Schema2DocCmd.main(new String[] {"-help"});
+		Schema2DocCmd.printHelp();
 		// no actual asserts possible
 	}
 

@@ -49,7 +49,7 @@ public class Schema2DocCmd {
 		final CommandLine cmdLine = parseArguments(args);
 
 		if (cmdLine.hasOption("help")) {
-			printHelp(new PrintWriter(new OutputStreamWriter(System.out, "UTF-8")));
+			printHelp();
 		} else {
 
 			LOG.debug("prepare schema2doc..");
@@ -78,12 +78,47 @@ public class Schema2DocCmd {
 	}
 
 	/** create suitable renderer from command line args. */
-	@NotNull public static IRenderer prepareRenderer(@NotNull final CommandLine cmdLine) throws Exception {
-		return new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(System.out, "UTF-8"))); // TBD: fill with commandline
+	@NotNull static IRenderer prepareRenderer(@NotNull final CommandLine cmdLine) throws Exception {
+		// final String outDir = Require.notNull(cmdLine).getOptionValue("out", "?");
+		// ..
+		return prepareRenderer();
 	}
 
+	@NotNull public static IRenderer prepareRenderer(/* missing args. */) throws Exception {
+		return new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(System.out, "UTF-8"))); 
+	}
+	
 	/** create suitable scanner from command line args. */
-	@NotNull public static IScanner prepareScanner(@NotNull final CommandLine cmdLine) throws Exception {
+	@NotNull static IScanner prepareScanner(@NotNull final CommandLine cmdLine) throws Exception {
+
+		String argJdbcUrl     = null;
+		String argDriverClass = null;
+		String argUser = null;
+		String argPw   = null;
+		
+		final String argScanner = Require.notNull(cmdLine).getOptionValue("scanner", "H2");
+		
+		if (!"Mock".equalsIgnoreCase(argScanner)) {
+			if (!cmdLine.hasOption("connection")) {
+				throw new Exception("required jdbc <connection> argument missing");
+			}
+			argJdbcUrl     = cmdLine.getOptionValue("connection");
+			argDriverClass = cmdLine.getOptionValue("driver", "org.h2.Driver");
+			argUser        = cmdLine.getOptionValue("user");
+			argPw          = cmdLine.getOptionValue("password");
+		}
+
+		return prepareScanner(argScanner, argJdbcUrl, argDriverClass, argUser, argPw);
+	}
+	
+	/** create suitable scanner from command line args. */
+	@NotNull public static IScanner prepareScanner(
+			@NotNull String argScanner,
+			@NotNull String argJdbcUrl,
+			@NotNull String argDriverClass,
+			String argUser,
+			String argPw
+			) throws Exception {
 
 		LOG.debug("create scanner from commandline arguments..");
 
@@ -91,31 +126,21 @@ public class Schema2DocCmd {
 		IScanner scanner = null;
 
 		try {
-
-			final String argScanner = Require.notNull(cmdLine).getOptionValue("scanner", "H2");
 			if (!"Mock".equalsIgnoreCase(argScanner)) {
-				if (!cmdLine.hasOption("connection")) {
-					throw new Exception("required jdbc <connection> argument missing");
-				}
-				final String argJdbcUrl = cmdLine.getOptionValue("connection");
-				final String argDriverClass = cmdLine.getOptionValue("driver", "org.h2.Driver");
-
 				Class<?> clazz = Class.forName(argDriverClass); // load database
 																// driver..
 				LOG.debug("using jdbc driver: " + clazz.getName());
-
-				final String argUser = cmdLine.getOptionValue("user");
-				final String argPw = cmdLine.getOptionValue("password");
 				LOG.debug("connecting to " + argJdbcUrl + " as " + argUser + " "
 						+ (argPw == null ? "without pw" : " with pw"));
 
 				conn = DriverManager.getConnection(argJdbcUrl, argUser, argPw);
-				scanner = "Oracle".equalsIgnoreCase(argScanner) ? new OracleScanner(conn) : new GenericDbScanner(conn);
-				LOG.debug("using scanner: " + scanner.getClass().getName());
+				scanner = "Oracle".equalsIgnoreCase(argScanner) ? new OracleScanner(conn) 
+												: new GenericDbScanner(conn);
 			} else {
 				scanner = new MockScanner();
 			}
-
+			
+			LOG.debug("using scanner: " + scanner.getClass().getName());
 			return Ensure.notNull(scanner, "scanner");
 		} catch (Exception ex) {
 			LOG.error("error creating db scanner", ex);
@@ -128,9 +153,9 @@ public class Schema2DocCmd {
 
 		Options cmdOptions = new Options();
 
-		cmdOptions.addOption(Option.builder("c").desc("jdbc connection string for the db to be documented.")
+		cmdOptions.addOption(org.apache.commons.cli.Option.builder("c").desc("jdbc connection string for the db to be documented.")
 				.argName("url").longOpt("connection").numberOfArgs(1).build());
-		cmdOptions.addOption(Option.builder("u").desc("database user used for connect").argName("dbuser")
+		cmdOptions.addOption(org.apache.commons.cli.Option.builder("u").desc("database user used for connect").argName("dbuser")
 				.longOpt("user").numberOfArgs(1).build());
 		cmdOptions.addOption(Option.builder("p").desc("database password used for connect").argName("dbpw")
 				.longOpt("password").numberOfArgs(1).build());
@@ -143,6 +168,11 @@ public class Schema2DocCmd {
 		cmdOptions.addOption(Option.builder("h").desc("command line help").longOpt("help").build());
 
 		return Ensure.notNull(cmdOptions, "cmdOptions");
+	}
+	
+	/** print help (on -help command) to stdout. */
+	public static void printHelp() throws Exception {
+		printHelp(new PrintWriter(new OutputStreamWriter(System.out, "UTF-8")));
 	}
 
 	/** print help (on -help command). */
