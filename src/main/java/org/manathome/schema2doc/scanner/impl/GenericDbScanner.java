@@ -66,7 +66,20 @@ public class GenericDbScanner implements IScanner {
 			    			);
 		        }
 		    }
-		    
+
+		    for (IDbTable table : tables) {
+				rs = connection.getMetaData()
+						.getExportedKeys(table.getCatalog(), 
+	  									 table.getSchema(),
+	  									 table.getName());
+			    while (rs.next()) {
+			    	table.addReferrer(new DbTableReferenceDefaultData(
+			    				rs.getString("FKTABLE_CAT"),
+			    				rs.getString("FKTABLE_SCHEM"),
+			    				rs.getString("FKTABLE_NAME"))
+			    			);
+		        }
+		    }		    
 		    
 		    return tables.stream();
 		} catch (Exception ex) {

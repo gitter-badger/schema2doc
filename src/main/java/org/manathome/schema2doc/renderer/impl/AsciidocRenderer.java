@@ -4,6 +4,7 @@ import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbPrivilege;
 import org.manathome.schema2doc.scanner.IDbTable;
+import org.manathome.schema2doc.scanner.IReference;
 import org.manathome.schema2doc.util.Convert;
 import org.manathome.schema2doc.util.NotNull;
 import org.manathome.schema2doc.util.Require;
@@ -28,18 +29,22 @@ public class AsciidocRenderer implements IRenderer {
 
     /** out stream to render to. */
 	public AsciidocRenderer(@NotNull final PrintWriter out) {
-		LOG.debug("using asciidoc renderer..");
-		this.out = Require.notNull(out, "required: out");
+		this();
+		this.setOut(out);
 	}
 	
+	public AsciidocRenderer() {
+		LOG.debug("using asciidoc renderer..");		
+	}
+
 	@Override
 	public void renderCatalog(@NotNull String catalog) {
-		out.println("== Catalog " + catalog);
+		Require.notNull(out, "out").println("== Catalog " + catalog);
 	}
 
 	@Override
 	public void renderSchema(@NotNull String schema) {
-		out.println("=== Schema " + schema);
+		Require.notNull(out, "out").println("=== Schema " + schema);
 	}	
 	
 	/* (non-Javadoc)
@@ -47,7 +52,7 @@ public class AsciidocRenderer implements IRenderer {
 	 */
 	@Override
 	public void beginRenderTable(@NotNull IDbTable table) {
-		out.println("[[" +  createTableFQN(table) + "]]"); // xrefable id
+		Require.notNull(out, "out").println("[[" +  createTableFQN(table) + "]]"); // xrefable id
 		
 		out.println("==== Table " + 
 //				 	Convert.nvl2(Require.notNull(table, "table").getCatalog(), table.getCatalog() + ".", "") +
@@ -67,9 +72,11 @@ public class AsciidocRenderer implements IRenderer {
 	 */
 	@Override
 	public void endRenderTable(@NotNull final IDbTable table) {
-		out.println("|==="); // end columns table
+		Require.notNull(out, "out").println("|==="); // end columns table
 		out.println();
 		out.println("Grants: " + table.getPrivileges().map(IDbPrivilege::display).collect(Collectors.joining(", ")));
+		out.println();
+		out.println("Referenced by: " + table.getReferrer().map(IReference::display).collect(Collectors.joining(", ")));
 	}
 
 	/* (non-Javadoc)
@@ -78,6 +85,7 @@ public class AsciidocRenderer implements IRenderer {
 	@Override
 	public void renderColumn(@NotNull final IDbColumn column) {
 		Require.notNull(column, "column");
+		Require.notNull(out, "out");
 		out.println("| " + (column.isPrimaryKey() ? "*" + column.getName() + "*" : column.getName())); 
 		out.println("| " + (column.isPrimaryKey() ? "PK " + column.getPrimaryKeyIndex() : ""));
 		out.println("| " + column.getTypename()); 
@@ -103,7 +111,7 @@ public class AsciidocRenderer implements IRenderer {
 
 	@Override
 	public void beginRenderDocumentation() {
-		out.println("= schema2doc database documentation");
+		Require.notNull(out, "out").println("= schema2doc database documentation");
 		out.println(":Date:    " + new Date());
 		out.println(":numbered:"); 
 		out.println(":icons:     font");
@@ -117,13 +125,15 @@ public class AsciidocRenderer implements IRenderer {
 
 	@Override
 	public void endRenderDocumentation() {
-		out.println("");
+		Require.notNull(out, "out").println("");
 		out.println("document generated at " + new Date());
 	}	
 
 	@Override
 	public void close() throws Exception {
-		out.flush();
+		if (out != null) {
+			out.flush();
+		}
 		out = null;
 	}
 	
@@ -148,5 +158,15 @@ public class AsciidocRenderer implements IRenderer {
 		   Convert.nvl2(schema, schema + ".", "") +
 		   Require.notNull(table, "table")
 		   ;
+	}
+
+	@Override
+	public String getSuggestedFilename() {
+		return "schemadocumentation.s2d.adoc";
+	}
+
+	@Override
+	public void setOut(PrintWriter out) {
+		this.out = Require.notNull(out, "out (PrintWriter)");
 	}
 }

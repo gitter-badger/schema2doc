@@ -32,4 +32,10 @@ public interface IDbTable extends Comparable<IDbTable>{
 	
 	/** list of users with grants on this table. */
 	@NotNull public Stream<IDbPrivilege> getPrivileges();
+
+	/** add a referrer this table is referencing. */
+	public void addReferrer(@NotNull IReference tableReference);
+	
+	/** list with incoming references (other db constructs referencing this table). */
+	@NotNull public Stream<IReference> getReferrer();
 }

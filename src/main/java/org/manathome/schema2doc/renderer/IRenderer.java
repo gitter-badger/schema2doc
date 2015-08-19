@@ -4,7 +4,9 @@ import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.util.NotNull;
 
-/** output documentation. */
+import java.io.PrintWriter;
+
+/** output generator for schema documentation. */
 public interface IRenderer extends AutoCloseable {
 	
 	/** start of document creation. */
@@ -27,4 +29,10 @@ public interface IRenderer extends AutoCloseable {
 
 	/** optional grouping. */
 	void renderSchema(@NotNull String schema);
+
+	/** suggest a suitable filename for this type of renderer. */
+	String getSuggestedFilename();
+
+	/** current out to render into. */
+	void setOut(@NotNull PrintWriter out);
 }

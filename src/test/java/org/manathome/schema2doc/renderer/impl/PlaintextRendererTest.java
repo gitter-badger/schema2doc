@@ -28,7 +28,9 @@ public class PlaintextRendererTest {
 	@Before
 	public void setUp() throws Exception {
 		out = new ByteArrayOutputStream();
-		renderer = new LoggingAdapterRenderer(new PlaintextRenderer(new PrintWriter(new OutputStreamWriter(out, "UTF-8"), true)));
+		renderer = new LoggingAdapterRenderer(
+				new PlaintextRenderer(new PrintWriter(new OutputStreamWriter(out, "UTF-8"), true)),
+				true);
 	}
 
 	@Test

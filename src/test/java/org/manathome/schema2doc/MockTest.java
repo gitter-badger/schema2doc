@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.renderer.impl.AsciidocRenderer;
+import org.manathome.schema2doc.renderer.impl.PlaintextRenderer;
 import org.manathome.schema2doc.scanner.IScanner;
 import org.manathome.schema2doc.scanner.impl.MockScanner;
 
@@ -26,8 +27,16 @@ public class MockTest {
 	}
 
 	@Test
-	public void testMockRun() throws Exception {
+	public void testAsciidocMockRun() throws Exception {
 		Schema2Doc s2d = new Schema2Doc(scanner, renderer);
+		s2d.process();
+		assertEquals("2 tables", 2, s2d.getRenderedTables());
+	}
+	
+	@Test
+	public void testPlaintextMockRun() throws Exception {
+		IRenderer plainRenderer = new PlaintextRenderer(new PrintWriter(new OutputStreamWriter(System.out, "UTF-8")));
+		Schema2Doc s2d = new Schema2Doc(scanner, plainRenderer);
 		s2d.process();
 		assertEquals("2 tables", 2, s2d.getRenderedTables());
 	}

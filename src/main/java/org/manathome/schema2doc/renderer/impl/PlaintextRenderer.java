@@ -21,8 +21,12 @@ public class PlaintextRenderer implements IRenderer {
 
     /** out stream to render to. */
 	public PlaintextRenderer(@NotNull final PrintWriter out) {
+		this();
+		this.setOut(out);
+	}
+
+	public PlaintextRenderer() {
 		LOG.debug("using console renderer..");
-		this.out = Require.notNull(out, "required: out");
 	}
 
 	/* (non-Javadoc)
@@ -88,5 +92,14 @@ public class PlaintextRenderer implements IRenderer {
 		out.println("== Schema: " + schema);
 		out.println("=====================================================================");
 	}
+	
+	@Override
+	public String getSuggestedFilename() {
+		return "schemadocumentation.s2d.txt";
+	}
 
+	@Override
+	public void setOut(PrintWriter out) {
+		this.out = Require.notNull(out, "out (PrintWriter)");	
+	}
 }

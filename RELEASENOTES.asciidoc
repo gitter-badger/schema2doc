@@ -1,0 +1,14 @@
+= Releasenotes/history for schema2doc
+
+
+== V0.1
+
+2015-08-19
+
+- command line _out_ argument functional
+- more tests
+- incoming table references
+
+2015-08-18
+
+- basic gradle plugin

@@ -7,6 +7,8 @@ import org.manathome.schema2doc.util.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.PrintWriter;
+
 /**
  * debug output during rendering phase..
  * @author man-at-home
@@ -14,10 +16,12 @@ import org.slf4j.LoggerFactory;
 public final class LoggingAdapterRenderer implements IRenderer {
 
 	private static final Logger LOG = LoggerFactory.getLogger(LoggingAdapterRenderer.class);
-	private IRenderer wrappedRenderer; 
+	private IRenderer wrappedRenderer;
+	private boolean   isVerbose = false; 
 	
-	public LoggingAdapterRenderer(@NotNull final IRenderer wrappedRenderer) {
+	public LoggingAdapterRenderer(@NotNull final IRenderer wrappedRenderer, boolean isVerbose) {
 		this.wrappedRenderer = wrappedRenderer;
+		this.isVerbose       = isVerbose;
 	}
 
 	/* (non-Javadoc)
@@ -32,6 +36,9 @@ public final class LoggingAdapterRenderer implements IRenderer {
 			LOG.debug("Rendering table {}", table.getName());
 			LOG.debug("          comment {}", table.getComment());
 		}
+		if (isVerbose) {
+			System.out.print(" render " + table.fqnName() + ".. ");
+		}
 		wrappedRenderer.beginRenderTable(table);
 	}
 
@@ -41,7 +48,9 @@ public final class LoggingAdapterRenderer implements IRenderer {
 	@Override
 	public void endRenderTable(@NotNull IDbTable table) {
 		wrappedRenderer.endRenderTable(table);
-		
+		if (isVerbose) {
+			System.out.print(" done.");
+		}		
 		if (table != null) {
 			LOG.debug("------------------------------------------");
 		}
@@ -57,6 +66,9 @@ public final class LoggingAdapterRenderer implements IRenderer {
 		} else {
 			LOG.error("column is null");
 		}
+		if (isVerbose) {
+			System.out.print(".");
+		}
 		wrappedRenderer.renderColumn(column);
 	}
 
@@ -67,6 +79,9 @@ public final class LoggingAdapterRenderer implements IRenderer {
 	@Override
 	public void beginRenderDocumentation() {
 		LOG.debug("begin render documentation");
+		if (isVerbose) {
+			System.out.print("render documentation");
+		}
 		wrappedRenderer.beginRenderDocumentation();		
 	}
 
@@ -86,6 +101,18 @@ public final class LoggingAdapterRenderer implements IRenderer {
 	public void renderSchema(String schema) {
 		LOG.debug("render schema " + schema);
 		wrappedRenderer.renderSchema(schema);		
+	}
+
+	@Override
+	public String getSuggestedFilename() {
+		String s = wrappedRenderer.getSuggestedFilename();
+		LOG.debug("suggested Filename is " + s);
+		return s;
+	}
+
+	@Override
+	public void setOut(PrintWriter out) {
+		wrappedRenderer.setOut(out);
 	}
 
 }

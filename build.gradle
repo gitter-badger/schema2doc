@@ -28,6 +28,8 @@ apply plugin: "build-dashboard"
 apply plugin: "announce"
 apply plugin: "org.asciidoctor.gradle.asciidoctor"
 
+// local deployment
+apply plugin: "maven"
 
 repositories {
         mavenLocal()
@@ -152,6 +154,16 @@ javadoc {
     options.windowTitle = "totask2 api documentation ${version}"	
     options.links( "http://download.oracle.com/javase/8/docs/api/" )
     options.addBooleanOption("Xdoclint:none").setValue(true)
+}
+
+// temporary shortcut, deploy directly for plugin use
+//           target solution: multi project build with dependencies..
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../schema2doc-plugin/repo'))
+        }
+    }
 }
 
 

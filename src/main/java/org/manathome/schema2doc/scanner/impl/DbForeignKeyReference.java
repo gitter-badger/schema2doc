@@ -1,6 +1,7 @@
 package org.manathome.schema2doc.scanner.impl;
 
 import org.manathome.schema2doc.scanner.IForeignKeyReference;
+import org.manathome.schema2doc.scanner.IReference;
 
 /** reference from column to referenced table. */
 public class DbForeignKeyReference implements IForeignKeyReference {
@@ -79,6 +80,17 @@ public class DbForeignKeyReference implements IForeignKeyReference {
 	@Override
 	public String getReferencedColumn() {
 		return referencedColumn;
+	}
+
+	@Override
+	public String display() {
+		// TODO(man-at-home) Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int compareTo(IReference o) {
+		return this.display().compareTo(o.display());
 	}
 
 }

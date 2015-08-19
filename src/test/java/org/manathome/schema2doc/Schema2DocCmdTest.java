@@ -7,6 +7,7 @@ import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
 import org.manathome.schema2doc.renderer.IRenderer;
+import org.manathome.schema2doc.renderer.RenderException;
 import org.manathome.schema2doc.scanner.IScanner;
 import org.manathome.schema2doc.scanner.impl.GenericDbScanner;
 import org.manathome.schema2doc.scanner.impl.H2ConnectTest;
@@ -31,6 +32,7 @@ public class Schema2DocCmdTest {
 		String[] args = new String[] { 
 				"-connection" , "egal",
 				"-scanner",  "Mock",
+				"-verbose"
 				};
 		CommandLine cmd = Schema2DocCmd.parseArguments(args);
 		LOG.debug("cmd=" + cmd.toString());
@@ -47,15 +49,41 @@ public class Schema2DocCmdTest {
 		assertNotNull(scanner);
 		assertTrue(scanner.getClass().getName().contains("Mock"));
 	}
+		
+	@Test
+	public void testMockScannerFromArgs() throws Exception {
+		String[] args = new String[] { 
+				"-connection" , "egal",
+				"-scanner",  "Mock",
+				"-verbose"
+				};
+		CommandLine cmd = Schema2DocCmd.parseArguments(args);
+		IRenderer renderer = Schema2DocCmd.prepareRenderer(cmd);
+		assertNotNull(renderer);
+	}	
 
 	@Test
 	public void testPrepareAsciidocRenderer() throws Exception {
 		
-		IRenderer renderer = Schema2DocCmd.prepareRenderer();
+		IRenderer renderer = Schema2DocCmd.prepareRenderer("asciidoc", null);
 		assertNotNull(renderer);
 		assertTrue(renderer.getClass().getName().contains("Ascii"));
 	}
+
+	@Test
+	public void testPreparePlaintextRenderer() throws Exception {
+		
+		Schema2DocCmd.isVerbose = false;
+		IRenderer renderer = Schema2DocCmd.prepareRenderer("Plaintext", null);
+		assertNotNull(renderer);
+		assertTrue("renderer not expected: " + renderer.getClass().getName(), renderer.getClass().getName().contains("Plaintext"));
+	}
 	
+	@Test(expected = RenderException.class)
+	public void testPrepareUnknownRenderer() throws Exception {		
+		Schema2DocCmd.prepareRenderer("UnknownRenderer", null);
+	}
+		
 	@Test
 	public void testMockShortArguments() throws Exception {
 		String[] args = new String[] { 
@@ -65,13 +93,14 @@ public class Schema2DocCmdTest {
 				"-p" , "unusedPw"
 				};
 		CommandLine cmd = Schema2DocCmd.parseArguments(args);
-		LOG.debug("cmd=" + cmd.toString());
+		LOG.debug("cmd=" + cmd);
+		
 		assertNotNull(cmd);
 		assertTrue("connection arg found", cmd.hasOption("connection"));
 		assertTrue("scanner arg found", cmd.hasOption("scanner"));
 		assertTrue("user arg found", cmd.hasOption("user"));
-		assertEquals("user name expected", "unusedUser" , cmd.getOptionValue("user"));
 		assertTrue("pw arg found", cmd.hasOption("password"));
+		assertEquals("user name expected", "unusedUser" , cmd.getOptionValue("user"));
 	}	
 	
 	@Test(expected = Exception.class)
@@ -83,6 +112,7 @@ public class Schema2DocCmdTest {
 		CommandLine cmd = Schema2DocCmd.parseArguments(args);
 		Schema2DocCmd.prepareScanner(cmd); // exception expected here..
 	}
+		
 	
 	@Test(expected = Exception.class)
 	public void testInvalidJdbcDriverArgument() throws Exception {
@@ -94,6 +124,29 @@ public class Schema2DocCmdTest {
 		CommandLine cmd = Schema2DocCmd.parseArguments(args);
 		Schema2DocCmd.prepareScanner(cmd); // exception expected here..
 	}
+
+	@Test(expected = RenderException.class)
+	public void testInvalidOutputDirArgument() throws Exception {
+		String[] args = new String[] { 
+				"-renderer" , "asciidoc",
+				"-out",  "NOT_EXISTING_DIRECTORY",
+				};
+		CommandLine cmd = Schema2DocCmd.parseArguments(args);
+		Schema2DocCmd.prepareRenderer(cmd); // exception expected here..
+	}
+	
+	@Test
+	public void testValidOutputDirArgument() throws Exception {
+		String[] args = new String[] { 
+				"-renderer" , "asciidoc",
+				"-out",  ".",
+				};
+		CommandLine cmd = Schema2DocCmd.parseArguments(args);
+		assertTrue(cmd.hasOption("o"));
+		assertEquals(".", cmd.getOptionValue("out"));
+		Schema2DocCmd.prepareRenderer(cmd); // no exception expected here..
+	}
+	
 	
 	@Test
 	public void testMockPrepareRun() throws Exception {
@@ -114,7 +167,8 @@ public class Schema2DocCmdTest {
 				"-connection", H2ConnectTest.H2_TOTASK2_DB,
 				"-driver" , H2ConnectTest.H2_DRIVER_NAME,
 				"-scanner",  "GenericDb",
-				"-user", "sa"
+				"-user", "sa",
+				"-verbose"
 				};
 		
 		CommandLine cmd = Schema2DocCmd.parseArguments(args);
@@ -124,6 +178,8 @@ public class Schema2DocCmdTest {
 		LOG.debug(h2Scanner.toString());
 	}	
 	
+	
+	// ---- help -------
 	
 	@Test
 	public void testHelp() throws Exception {
@@ -142,6 +198,23 @@ public class Schema2DocCmdTest {
 		assertThat(helpContent, containsString("-help"));
 		assertThat(helpContent, containsString("-driver"));
 		assertThat(helpContent, containsString("-connection"));
+	}
+	
+	// ---- test main -----
+	
+	@Test
+	public void testMain() throws Exception {
+		
+		String[] args = new String[] { 
+				"-connection", H2ConnectTest.H2_TOTASK2_DB,
+				"-driver" , H2ConnectTest.H2_DRIVER_NAME,
+				"-scanner",  "GenericDb",
+				"-user", "sa",
+				"-renderer", "asciidoc",
+				"-verbose"
+				};
+		
+		Schema2DocCmd.main(args);	
 	}
 
 }
