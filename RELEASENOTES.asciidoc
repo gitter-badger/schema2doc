@@ -3,6 +3,11 @@
 
 == V0.1
 
+2015-08-25
+
+- added -schema argument
+- initial upload to bintray with gradle
+
 2015-08-19
 
 - command line _out_ argument functional

@@ -35,7 +35,7 @@ apply plugin: "com.jfrog.bintray"
 
 
 group   = 'org.manathome'
-version = '0.1-DEV'
+version = '0.2-SNAPSHOT'
 
 repositories {
         mavenLocal()
@@ -196,7 +196,7 @@ bintray {
     key  = System.getenv("BINTRAY_KEY")
  
     publications = ['mavenJava']
-    dryRun 		 = false
+    dryRun 		 = true				// change to false for upload
     publish 	 = true
     pkg {
         repo 			= "maven"
@@ -209,9 +209,8 @@ bintray {
         publicDownloadNumbers = false
         
         version {
-                name = '0.1-DEV'
+                name = '0.2-DEV'					// adapt
                 desc = 'under development'
-         //       released  = new Date()
         }
     }
 }
