@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -25,8 +26,11 @@ public class GenericDbScanner implements IScanner {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(GenericDbScanner.class);
 
-	
+	/** database connection. */
 	private Connection connection;
+
+	/** list of schema or null for all. */
+	private String[] schemaToDocument = null;
 	
 	public GenericDbScanner(@NotNull final Connection connection) {
 		this.connection = Require.notNull(connection);
@@ -45,13 +49,17 @@ public class GenericDbScanner implements IScanner {
 			List<IDbTable> tables = new ArrayList<IDbTable>();
 			ResultSet rs = connection.getMetaData().getTables(null, null, "%", null);
 		    while (rs.next()) {
-		    	tables.add(
-		    			new DbTableDefaultData(
-		    			rs.getString("TABLE_CAT"),
-		    			rs.getString("TABLE_SCHEM"),
-		    			rs.getString("TABLE_NAME"),
-		    			rs.getString("REMARKS")
-		    			));
+		    	final String schema = rs.getString("TABLE_SCHEM");
+		    	if (schemaToDocument == null || 
+		    	    Arrays.stream(schemaToDocument).anyMatch(s -> s.equalsIgnoreCase(schema))) {
+			    	tables.add(
+			    			new DbTableDefaultData(
+			    			rs.getString("TABLE_CAT"),
+			    			schema,
+			    			rs.getString("TABLE_NAME"),
+			    			rs.getString("REMARKS")
+			    			));
+		    	}
 	        }
 		    
 		    for (IDbTable table : tables) {
@@ -178,6 +186,11 @@ public class GenericDbScanner implements IScanner {
 		} catch (Exception ex) {
 			throw new ScannerException("error retrieving colums for " + table, ex);
 		}
+	}
+
+	@Override
+	public void setSchemaFilter(final String[] argSchema) {		
+		this.schemaToDocument = argSchema != null ? argSchema.clone() : null;		
 	}
 
 }

@@ -13,4 +13,7 @@ public interface IScanner {
 	/** gets a list of table columns for a given table. */
 	@NotNull Stream<IDbColumn> getColumns(@NotNull IDbTable table);
 
+	/** optional: restrict db documentation to these schemas. */
+	void setSchemaFilter(String[] argSchema);
+
 }

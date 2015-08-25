@@ -1,9 +1,12 @@
 package org.manathome.schema2doc;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 import org.junit.Before;
 import org.junit.Test;
 import org.manathome.schema2doc.renderer.IRenderer;
@@ -17,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 /** tests. */
 public class Schema2DocCmdTest {
@@ -42,10 +46,20 @@ public class Schema2DocCmdTest {
 		assertEquals("scanner is Mock", "Mock", cmd.getOptionValue("scanner"));
 	}
 	
+	
+	@Test
+	public void testCommandLineOptions() throws Exception {
+		Options options = Schema2DocCmd.createCommandLineOptions();
+		assertThat(options.getOptions().size(), is(10));
+		assertTrue(options.hasOption("schema"));
+		assertTrue(options.hasOption("connection"));
+	}
+
+	
 	@Test
 	public void testPrepareMockScanner() throws Exception {
 		
-		IScanner scanner = Schema2DocCmd.prepareScanner("Mock", null, null, null, null);
+		IScanner scanner = Schema2DocCmd.prepareScanner("Mock", null, null, null, null, null);
 		assertNotNull(scanner);
 		assertTrue(scanner.getClass().getName().contains("Mock"));
 	}
@@ -101,6 +115,36 @@ public class Schema2DocCmdTest {
 		assertTrue("user arg found", cmd.hasOption("user"));
 		assertTrue("pw arg found", cmd.hasOption("password"));
 		assertEquals("user name expected", "unusedUser" , cmd.getOptionValue("user"));
+	}	
+	
+
+	/** test -schema argument list. */
+	@Test
+	public void testSchemaArgument() throws Exception {
+		String[] args = new String[] { 
+				"-schema" , "eins", "zwei.1", "drei"
+				};
+		CommandLine cmd = Schema2DocCmd.parseArguments(args);
+		LOG.debug("cmd=" + cmd);
+		
+		assertNotNull(cmd);
+		assertTrue("schema arg found", cmd.hasOption("schema"));
+		assertThat("inv. number of -schema arguments", cmd.getOptionValues("schema").length, is(3));
+		assertThat(Arrays.asList(cmd.getOptionValues("schema")), hasItem("eins"));
+		assertThat(Arrays.asList(cmd.getOptionValues("schema")), hasItem("zwei.1"));
+	}	
+
+	/** test omitted -schema argument. */
+	@Test
+	public void testOmittedSchemaArgument() throws Exception {
+		String[] args = new String[] { 
+				"-h"
+				};
+		CommandLine cmd = Schema2DocCmd.parseArguments(args);
+		LOG.debug("cmd=" + cmd);
+		
+		assertNotNull(cmd);
+		assertTrue("no schema arg",  !cmd.hasOption("schema"));
 	}	
 	
 	@Test(expected = Exception.class)
@@ -216,5 +260,5 @@ public class Schema2DocCmdTest {
 		
 		Schema2DocCmd.main(args);	
 	}
-
+	
 }

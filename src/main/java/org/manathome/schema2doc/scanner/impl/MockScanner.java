@@ -69,4 +69,9 @@ public class MockScanner implements IScanner {
 	public Stream<IDbColumn> getColumns(final IDbTable table) {
 		return COLUMNS.get(table).stream();
 	}
+
+	@Override
+	public void setSchemaFilter(String[] argSchema) {
+		// nop, ignore here		
+	}
 }

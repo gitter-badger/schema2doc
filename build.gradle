@@ -1,7 +1,7 @@
 /*
  * gradle build script for schema2doc project.
  *
- * uses gradle 2.5 for compile (or provided gradlew script).
+ * uses gradle 2.6 for compile (or provided gradlew script).
  *
  * @see     http://man-at-home.github.io/schema2doc/
  * @author  man-at-home
@@ -28,8 +28,14 @@ apply plugin: "build-dashboard"
 apply plugin: "announce"
 apply plugin: "org.asciidoctor.gradle.asciidoctor"
 
-// local deployment
+// deployment
 apply plugin: "maven"
+apply plugin: "maven-publish"
+apply plugin: "com.jfrog.bintray"
+
+
+group   = 'org.manathome'
+version = '0.1-DEV'
 
 repositories {
         mavenLocal()
@@ -50,11 +56,9 @@ buildscript {
     dependencies {
         classpath "org.asciidoctor:asciidoctor-gradle-plugin:1.5.2" 
         classpath "org.flywaydb:flyway-gradle-plugin:3.2.1"										// db migration
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.3.1"
     }
 }
-
-group   = 'org.manathome'
-version = '0.1-SNAPSHOT'
 
 sourceCompatibility = "1.8"
 
@@ -167,6 +171,54 @@ uploadArchives {
 }
 
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+publishing {
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+            url "$buildDir/repo"
+        }
+    }
+}
+
+
+// bintrayUpload task
+bintrayUpload.dependsOn(assemble)
+
+bintray {
+    user = "man-at-home" 
+    key  = System.getenv("BINTRAY_KEY")
+ 
+    publications = ['mavenJava']
+    dryRun 		 = false
+    publish 	 = true
+    pkg {
+        repo 			= "maven"
+        name 			= "schema2doc"
+        desc 			= "asciidoc db schema documentation generator"
+        websiteUrl 		= "https://github.com/man-at-home/schema2doc"
+        issueTrackerUrl = "https://waffle.io/man-at-home/schema2doc"
+        vcsUrl 			= "https://github.com/man-at-home/schema2doc.git"
+        licenses 		= ['Apache-2.0']
+        publicDownloadNumbers = false
+        
+        version {
+                name = '0.1-DEV'
+                desc = 'under development'
+         //       released  = new Date()
+        }
+    }
+}
+
+
+
+
 // CUSTOM TASKS
 // ============
 
@@ -188,4 +240,9 @@ task coverage {
 task wrapper(type: Wrapper) {
     description "gradle wrapper generation (call if gradle version changes)"
     gradleVersion = '2.6'
+}
+
+task publish2public {
+    description "upload jars to jcenter (maven repo)"
+    dependsOn test, bintrayUpload
 }

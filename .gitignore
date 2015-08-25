@@ -3,3 +3,8 @@
 .gradle
 
 /nbproject/private/
+junit.schema2doctest.*
+nbproject/
+schemadocumentation.*.adoc
+build.xml
+manifest.mf

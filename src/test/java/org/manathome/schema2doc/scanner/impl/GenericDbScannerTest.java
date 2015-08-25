@@ -1,5 +1,6 @@
 package org.manathome.schema2doc.scanner.impl;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -87,7 +88,17 @@ public class GenericDbScannerTest {
 	    			);
 	    		});
 	}
+	
+	/** restrict output to one schema. */
+	@Test
+	public void testPublicSchemaFilter() {
+		IScanner scanner = new GenericDbScanner(conn);
+		scanner.setSchemaFilter(new String[] { "PUBLIC" });
+		scanner.getTables().forEach(tbl -> LOG.debug("TABLE: " + tbl.fqnName()));
+		scanner.getTables().forEach(tbl -> assertThat("only table from public", tbl.getSchema(), is("PUBLIC")));
+	}
 
+	/** PROJECT_ID is foreign key. */
 	@Test
 	public void testForeingKey_TT_TASK() {
 		IScanner scanner = new GenericDbScanner(conn);

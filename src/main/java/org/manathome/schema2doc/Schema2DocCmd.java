@@ -165,6 +165,7 @@ public class Schema2DocCmd {
 		String argDriverClass = null;
 		String argUser        = null;
 		String argPw          = null;
+		String argSchema[]    = null;
 		
 		final String argScanner = Require.notNull(cmdLine).getOptionValue("scanner", "H2");
 		
@@ -176,9 +177,10 @@ public class Schema2DocCmd {
 			argDriverClass = cmdLine.getOptionValue("driver", "org.h2.Driver");
 			argUser        = cmdLine.getOptionValue("user");
 			argPw          = cmdLine.getOptionValue("password");
+			argSchema      = cmdLine.hasOption("schema") ? cmdLine.getOptionValues("schema") : null;
 		}
 
-		return prepareScanner(argScanner, argJdbcUrl, argDriverClass, argUser, argPw);
+		return prepareScanner(argScanner, argJdbcUrl, argDriverClass, argUser, argPw, argSchema);
 	}
 	
 	/** create suitable scanner. */
@@ -187,7 +189,8 @@ public class Schema2DocCmd {
 			@NotNull String argJdbcUrl,
 			@NotNull String argDriverClass,
 			         String argUser,
-			         String argPw
+			         String argPw,
+			         String argSchema[]
 			) throws Exception {
 
 		LOG.debug("create scanner from commandline arguments..");
@@ -203,9 +206,11 @@ public class Schema2DocCmd {
 				LOG.debug("connecting to " + argJdbcUrl + " as " + argUser + " "
 						+ (argPw == null ? "without pw" : " with pw"));
 
-				conn = DriverManager.getConnection(argJdbcUrl, argUser, argPw);
-				scanner = "Oracle".equalsIgnoreCase(argScanner) ? new OracleScanner(conn) 
+				conn    = DriverManager.getConnection(argJdbcUrl, argUser, argPw);
+				scanner = "Oracle".equalsIgnoreCase(argScanner) ? 
+												  new OracleScanner(conn) 
 												: new GenericDbScanner(conn);
+				scanner.setSchemaFilter(argSchema);
 			} else {
 				scanner = new MockScanner();
 			}
@@ -228,20 +233,24 @@ public class Schema2DocCmd {
 		cmdOptions.addOption(org.apache.commons.cli.Option.builder("c").desc("jdbc connection string for the db to be documented.")
 				.argName("url").longOpt("connection").numberOfArgs(1).build());
 		cmdOptions.addOption(org.apache.commons.cli.Option.builder("u").desc("database user used for connect").argName("dbuser")
-				.longOpt("user").numberOfArgs(1).build());
+				.longOpt("user").numberOfArgs(1).optionalArg(true).build());
 		cmdOptions.addOption(Option.builder("p").desc("database password used for connect").argName("dbpw")
-				.longOpt("password").numberOfArgs(1).build());
+				.longOpt("password").numberOfArgs(1).optionalArg(true).build());
 		cmdOptions.addOption(Option.builder("driver").desc("jdbc driver class (fqn) to use").argName("className")
 				.numberOfArgs(1).build());
 		cmdOptions.addOption(Option.builder("scanner").desc("one of (currently): Oracle, GenericDb or Mock")
 				.argName("implementation").numberOfArgs(1).build());
+		cmdOptions.addOption(Option.builder("schema").desc("one or more schema to document, all if empty")
+				.argName("schemalist").hasArgs().optionalArg(true).build());	
+		
 		cmdOptions.addOption(Option.builder("renderer").desc("rendering engine, currently one of: asciidoc or plaintext")
 				.argName("implementation").numberOfArgs(1).build());
 		cmdOptions.addOption(Option.builder("o")
 				.desc("output directory for asciidoc output (default is stdout/console)")
-				.longOpt("out").numberOfArgs(1).build());
-		cmdOptions.addOption(Option.builder("h").desc("command line help").longOpt("help").build());
-		cmdOptions.addOption(Option.builder("v").desc("verbose output").longOpt("verbose").build());
+				.longOpt("out").numberOfArgs(1).optionalArg(true).build());
+		
+		cmdOptions.addOption(Option.builder("h").desc("command line help").longOpt("help").optionalArg(true).build());
+		cmdOptions.addOption(Option.builder("v").desc("verbose output").longOpt("verbose").optionalArg(true).build());
 	
 		return Ensure.notNull(cmdOptions, "cmdOptions");
 	}
