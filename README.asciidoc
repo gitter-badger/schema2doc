@@ -10,7 +10,7 @@ image:https://travis-ci.org/man-at-home/schema2doc.svg?branch=master["travis Bui
 image:http://codecov.io/github/man-at-home/schema2doc/coverage.svg?branch=master ["codecov.io", link="http://codecov.io/github/man-at-home/schema2doc?branch=master"]
 image:https://scan.coverity.com/projects/5964/badge.svg ["coverity", link="https://scan.coverity.com/projects/5964"]
 image:https://img.shields.io/github/license/man-at-home/schema2doc.svg  ["license", link="https://github.com/man-at-home/schema2doc"]
-image::https://api.bintray.com/packages/man-at-home/maven/schema2doc/images/download.svg[link="https://bintray.com/man-at-home/maven/schema2doc/_latestVersion"]
+image:https://api.bintray.com/packages/man-at-home/maven/schema2doc/images/download.svg[link="https://bintray.com/man-at-home/maven/schema2doc/_latestVersion"]
 
 WARNING: not functional yet!
 
