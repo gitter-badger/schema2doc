@@ -35,7 +35,7 @@ apply plugin: "com.jfrog.bintray"
 
 
 group   = 'org.manathome'
-version = '0.2-SNAPSHOT'
+version = '0.1.1'
 
 repositories {
         mavenLocal()
@@ -170,18 +170,37 @@ uploadArchives {
     }
 }
 
+task sourceJar(type: Jar, dependsOn: classes) {
+     description "generate a jar with all source files"
+     classifier = "sources"
+     from sourceSets.main.allSource
+}
+task javadocJar(type: Jar) {
+     description "generate a jar with all source files"
+     classifier = "javadoc"
+     from javadoc.destinationDir
+     dependsOn javadoc
+}
+
+
+// add javadoc/source jars as artifacts
+artifacts {
+     archives sourceJar, javadocJar
+}
+
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+     		
+     		artifact sourceJar 
+            artifact javadocJar
         }
     }
-}
-publishing {
     repositories {
         maven {
-            // change to point to your repo, e.g. http://my.org/repo
+            // project local dummy repo
             url "$buildDir/repo"
         }
     }
@@ -189,6 +208,7 @@ publishing {
 
 
 // bintrayUpload task
+// ------------------
 bintrayUpload.dependsOn(assemble)
 
 bintray {
@@ -196,12 +216,12 @@ bintray {
     key  = System.getenv("BINTRAY_KEY")
  
     publications = ['mavenJava']
-    dryRun 		 = true				// change to false for upload
-    publish 	 = true
+    dryRun 		 = false			// change to false for actual upload to bintray
+    publish 	 = false			// keep publishing step manual for the time beeing
     pkg {
         repo 			= "maven"
         name 			= "schema2doc"
-        desc 			= "asciidoc db schema documentation generator"
+        desc 			= "an asciidoc db schema documentation generator"
         websiteUrl 		= "https://github.com/man-at-home/schema2doc"
         issueTrackerUrl = "https://waffle.io/man-at-home/schema2doc"
         vcsUrl 			= "https://github.com/man-at-home/schema2doc.git"
@@ -209,7 +229,7 @@ bintray {
         publicDownloadNumbers = false
         
         version {
-                name = '0.2-DEV'					// adapt
+                name = '0.1.1'					// adapt
                 desc = 'under development'
         }
     }
@@ -240,6 +260,8 @@ task wrapper(type: Wrapper) {
     description "gradle wrapper generation (call if gradle version changes)"
     gradleVersion = '2.6'
 }
+
+
 
 task publish2public {
     description "upload jars to jcenter (maven repo)"
