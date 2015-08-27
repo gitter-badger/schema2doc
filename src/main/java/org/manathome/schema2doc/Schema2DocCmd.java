@@ -93,7 +93,7 @@ public class Schema2DocCmd {
 		try {
 			LOG.debug("parse command line");
 			final CommandLineParser parser = new DefaultParser();
-			final CommandLine cmdLine = parser.parse(createCommandLineOptions(), args);
+			final CommandLine      cmdLine = parser.parse(createCommandLineOptions(), args);
 
 			return Ensure.notNull(cmdLine, "cmdLine");
 		} catch (ParseException exp) {
@@ -122,7 +122,7 @@ public class Schema2DocCmd {
 		PrintWriter out      = null;
 		
 		// find suitable renderer
-		if (Require.notNull(rendererImplementation).toLowerCase().contains("asciidoc")) {
+		if (Require.notNull(rendererImplementation, "renderer").toLowerCase().contains("asciidoc")) {
 			renderer = new AsciidocRenderer(); 			
 		} else if (rendererImplementation.toLowerCase().contains("plaintext")) {
 			renderer = new PlaintextRenderer(); 						
@@ -167,7 +167,7 @@ public class Schema2DocCmd {
 		String argPw          = null;
 		String argSchema[]    = null;
 		
-		final String argScanner = Require.notNull(cmdLine).getOptionValue("scanner", "H2");
+		final String argScanner = Require.notNull(cmdLine, "cmdLine").getOptionValue("scanner", "H2");
 		
 		if (!"Mock".equalsIgnoreCase(argScanner)) {
 			if (!cmdLine.hasOption("connection")) {
@@ -230,6 +230,8 @@ public class Schema2DocCmd {
 
 		Options cmdOptions = new Options();
 
+		cmdOptions.addOption(Option.builder("scanner").desc("one of (currently): Oracle, GenericDb or Mock")
+				.argName("implementation").numberOfArgs(1).build());
 		cmdOptions.addOption(org.apache.commons.cli.Option.builder("c").desc("jdbc connection string for the db to be documented.")
 				.argName("url").longOpt("connection").numberOfArgs(1).build());
 		cmdOptions.addOption(org.apache.commons.cli.Option.builder("u").desc("database user used for connect").argName("dbuser")
@@ -238,8 +240,6 @@ public class Schema2DocCmd {
 				.longOpt("password").numberOfArgs(1).optionalArg(true).build());
 		cmdOptions.addOption(Option.builder("driver").desc("jdbc driver class (fqn) to use").argName("className")
 				.numberOfArgs(1).build());
-		cmdOptions.addOption(Option.builder("scanner").desc("one of (currently): Oracle, GenericDb or Mock")
-				.argName("implementation").numberOfArgs(1).build());
 		cmdOptions.addOption(Option.builder("schema").desc("one or more schema to document, all if empty")
 				.argName("schemalist").hasArgs().optionalArg(true).build());	
 		

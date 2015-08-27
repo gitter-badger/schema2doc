@@ -127,12 +127,14 @@ public class AsciidocRenderer implements IRenderer {
 	public void endRenderDocumentation() {
 		Require.notNull(out, "out").println("");
 		out.println("document generated at " + new Date());
+		out.flush();
 	}	
 
 	@Override
 	public void close() throws Exception {
 		if (out != null) {
 			out.flush();
+			out.close();
 		}
 		out = null;
 	}

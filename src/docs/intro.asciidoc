@@ -1,11 +1,78 @@
 schema2doc
 ==========
 :Author: man-at-home
-:Date:   2015-08-08s
+:Date:   2015-08-27
 
 == planned functionality
 
 - generate oracle documenation from a live database (sid)
 - tables, columns, constraints and others
-- basic functionality with h2
+- basic functionality with h2 and oracle
 - generate documentation as asciidoc
+
+
+== output
+
+[[img-asciidoc]]
+.asciidoc output
+image::images/screen.mockdb.asciidoc.png[screenshot_asciidoc, 600, 400]
+
+[[img-html]]
+.html generated from asciidoc
+image::images/screen.mockdb.html.png[screenshot_html, 600, 400]
+
+
+== usage
+
+=== command line
+
+[source,cmd,indent=0]
+----
+schema2doc tool, retrieves database metadata from a db an writes asciidoc docs
+with it.
+
+   -c,--connection <url>          jdbc connection string for the db to be
+                                  documented.
+   -driver <className>            jdbc driver class (fqn) to use
+   -h,--help                      command line help
+   -o,--out <arg>                 output directory for asciidoc output (default
+                                  is stdout/console)
+   -p,--password <dbpw>           database password used for connect
+   -renderer <implementation>     rendering engine, currently one of: asciidoc
+                                  or plaintext
+   -scanner <implementation>      one of (currently): Oracle, GenericDb or Mock
+   -schema <schemalist>           one or more schema to document, all if empty
+   -u,--user <dbuser>             database user used for connect
+   -v,--verbose                   verbose output
+
+asciidoc documenation generator for your database
+----
+
+=== gradle plugin
+
+[source,groovy,indent=0]
+----
+buildscript {
+    repositories {
+
+    	maven{url "https://dl.bintray.com/man-at-home/maven"}	// hosting for schema2doc binary
+		...
+	dependencies {
+        classpath group: 'org.manathome', name: 'Schema2DocPlugin',
+				  version: '0.1.2'
+		...
+
+apply plugin: "org.manathome.Schema2DocPlugin"
+
+
+schema2doc {
+	// configuring this projects own gradle plugin
+ 	scanner             = "Mock"
+//	connection          = "jdbc:h2:./totask2.qa.db"
+//	driver              = "org.h2.Driver"
+//	user                = "sa"
+
+	renderer            = "asciidoc"
+	out                 = "${buildDir}"
+}
+----

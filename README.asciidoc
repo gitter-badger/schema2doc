@@ -21,3 +21,4 @@ See
 
 * planning on https://waffle.io/man-at-home/schema2doc
 
+* link:src/docs/intro.asciidoc[intro/docs]

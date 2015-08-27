@@ -35,7 +35,7 @@ apply plugin: "com.jfrog.bintray"
 
 
 group   = 'org.manathome'
-version = '0.1.1'
+version = '0.1.2'
 
 repositories {
         mavenLocal()
@@ -229,7 +229,7 @@ bintray {
         publicDownloadNumbers = false
         
         version {
-                name = '0.1.1'					// adapt
+                name = '0.1.2'					// adapt
                 desc = 'under development'
         }
     }
@@ -265,5 +265,5 @@ task wrapper(type: Wrapper) {
 
 task publish2public {
     description "upload jars to jcenter (maven repo)"
-    dependsOn test, bintrayUpload
+    dependsOn bintrayUpload
 }
