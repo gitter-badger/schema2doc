@@ -33,6 +33,6 @@ public interface IRenderer extends AutoCloseable {
 	/** suggest a suitable filename for this type of renderer. */
 	String getSuggestedFilename();
 
-	/** current out to render into. */
+	/** current out writer to render into. */
 	void setOut(@NotNull PrintWriter out);
 }

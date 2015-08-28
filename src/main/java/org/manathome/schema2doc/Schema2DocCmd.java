@@ -36,6 +36,7 @@ import java.sql.DriverManager;
  * @since 2015
  * 
  * @see #main(String[])
+ * @see Schema2Doc wrapped tool
  */
 public class Schema2DocCmd {
 	
@@ -210,10 +211,11 @@ public class Schema2DocCmd {
 				scanner = "Oracle".equalsIgnoreCase(argScanner) ? 
 												  new OracleScanner(conn) 
 												: new GenericDbScanner(conn);
-				scanner.setSchemaFilter(argSchema);
 			} else {
 				scanner = new MockScanner();
 			}
+			
+			scanner.setSchemaFilter(argSchema);
 			
 			LOG.debug("using scanner: " + scanner.getClass().getName());
 			return Ensure.notNull(scanner, "scanner");

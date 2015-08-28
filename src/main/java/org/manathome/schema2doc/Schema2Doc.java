@@ -11,7 +11,11 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** entry point to tool. */
+/** entry point to the schema2doc tool.
+ *  Binds scanner and renderer portion together. 
+ *  
+ *  @see Schema2DocCmd for command line use
+ */
 public class Schema2Doc {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Schema2Doc.class);
@@ -26,6 +30,7 @@ public class Schema2Doc {
 		this.renderer 	= Require.notNull(renderer, "renderer not set");
 	}
 
+	/** holds number of processed tables after processing. */
 	public int getRenderedTables() {
 		return this.tableCnt;
 	}
@@ -75,10 +80,12 @@ public class Schema2Doc {
 		LOG.info("running Schema2Doc done.");
 	}
 
+	/** should the documentation separate catalogs and schemas. */
 	public boolean isGroupedByCatalogAndSchema() {
 		return isGroupedByCatalogAndSchema;
 	}
 
+	/** should the documentation separate catalogs and schemas. */
 	public void setGroupedByCatalogAndSchema(boolean isGroupedByCatalogAndSchema) {
 		this.isGroupedByCatalogAndSchema = isGroupedByCatalogAndSchema;
 	}

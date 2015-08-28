@@ -1,9 +1,19 @@
 schema2doc
 ==========
 :Author: man-at-home
-:Date:   2015-08-27
+:Date:   2015-08-28
 
-== planned functionality
+== summary
+
+schema2doc will be a documentation tool that scans a database structure and emitting documentation (table, columns etc.)
+for it in asciidoc. It is not meant as an alternative to front up design documents, but can augment it with documentation about
+the current existing database structure.
+
+It works as an command line utility, but my use will be though the provided gradle plugin during a gradle build.
+
+Targeted databases for the first releases are h2 and oracle only.
+
+== planned functionality (near time)
 
 - generate oracle documenation from a live database (sid)
 - tables, columns, constraints and others
@@ -11,7 +21,7 @@ schema2doc
 - generate documentation as asciidoc
 
 
-== output
+== example output
 
 [[img-asciidoc]]
 .asciidoc output
@@ -23,6 +33,8 @@ image::images/screen.mockdb.html.png[screenshot_html, 600, 400]
 
 
 == usage
+
+This tool can be used as command line tool or with it's gradle plugin. Possible configuration values see below.
 
 === command line
 
@@ -48,6 +60,8 @@ with it.
 asciidoc documenation generator for your database
 ----
 
+Execute above commandline through the _org.manathome.schema2doc.Schema2DocCmd_ class.
+
 === gradle plugin
 
 [source,groovy,indent=0]
@@ -55,24 +69,64 @@ asciidoc documenation generator for your database
 buildscript {
     repositories {
 
-    	maven{url "https://dl.bintray.com/man-at-home/maven"}	// hosting for schema2doc binary
+    	maven{url "https://dl.bintray.com/man-at-home/maven"}	// <1> hosting for schema2doc binary
 		...
 	dependencies {
         classpath group: 'org.manathome', name: 'Schema2DocPlugin',
 				  version: '0.1.2'
+
+        classpath "com.h2database:h2:1.4.187"               // <2> used database driver, here: h2
 		...
 
 apply plugin: "org.manathome.Schema2DocPlugin"
 
-
 schema2doc {
-	// configuring this projects own gradle plugin
- 	scanner             = "Mock"
-//	connection          = "jdbc:h2:./totask2.qa.db"
-//	driver              = "org.h2.Driver"
-//	user                = "sa"
+  // <2> configuring input
+  scanner             = "Generic"
+  connection          = "jdbc:h2:./schema2doc.test.h2.db"
+  driver              = "org.h2.Driver"
+  user                = "sa"
+  schema              = ["PUBLIC"]
 
-	renderer            = "asciidoc"
-	out                 = "${buildDir}"
+  // <3> configuring output
+  renderer            = "asciidoc"
+  out                 = "${buildDir}"
 }
+
 ----
+<1> get access to schema2doc library on bintray
+<2> include database driver for your database
+<3> configure the plugin (how to access the database..)
+<4> configure the plugin (where to put the documentation..)
+
+Execute above gradle task with _gradlew schema2doc_.
+
+== development notes
+
+The code for this project (written in java) is hosted at github: https://github.com/man-at-home/schema2doc, 
+as is the gradle plugin at https://github.com/man-at-home/schema2doc-plugin (written in groovy). 
+
+Both projects are build with gradle. Notable versions are published on bintray and can so be used as maven or gradle dependency.
+
+Used library dependencies are:
+
+- _slf4j_ with _logback_ for logging
+- _commons-cli_ for command line argument parsing
+- the relevant jdbc driver suitable for your database
+
+
+== references
+
+At the moment this tool is in a @pre-alpha state@ and not usefull to third party users.
+But the whole thing is not a new idea, so tools with a far longer track record (and maturity) can be found at:
+
+- http://schemaspy.sourceforge.net/
+- http://dbdoc.sourceforge.net/
+- http://oradoclet.sourceforge.net/
+- ...
+
+and commerial, for example
+
+- http://www.red-gate.com/products/sql-development/sql-doc/
+- http://documents.software.dell.com/toad-data-modeler/5.2/user-guide/projects-and-models/reports/report-generation/html-rtf-pdf-reports
+
