@@ -10,6 +10,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import javax.sql.rowset.CachedRowSet;
+
 /**
  * retrieving sample tables.
  * 
@@ -73,5 +75,11 @@ public class MockScanner implements IScanner {
 	@Override
 	public void setSchemaFilter(String[] argSchema) {
 		// nop, ignore here		
+	}
+
+	/** not implemented, returning null. */
+	@Override
+	public CachedRowSet getQueryData(IDbTable table, String sqlSelect) {
+		return null;
 	}
 }

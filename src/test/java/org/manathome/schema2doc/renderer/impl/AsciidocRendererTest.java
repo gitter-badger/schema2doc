@@ -48,8 +48,8 @@ public class AsciidocRendererTest {
 	@Test
 	public void testRenderTable() throws Exception {
 		IDbTable table = new DbTableDefaultData(null, null, "dummyTableName", "dummy-comment");
-		renderer.beginRenderTable(table);
-		renderer.endRenderTable(table);
+		renderer.beginRenderTable(table, null);
+		renderer.endRenderTable(table, null);
 		String result = bout.toString("UTF-8");
 		
 		assertThat(result, containsString("dummyTableName"));
@@ -87,8 +87,8 @@ public class AsciidocRendererTest {
 		try (AsciidocRenderer renderer = new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(
 					    new FileOutputStream(outFile), "UTF-8"), true))) {
 			IDbTable table = new DbTableDefaultData(null, null, "dummyTableName", "dummy-comment");
-			renderer.beginRenderTable(table);
-			renderer.endRenderTable(table);
+			renderer.beginRenderTable(table, null);
+			renderer.endRenderTable(table, null);
 			
 			
 			assertTrue(outFile.exists());

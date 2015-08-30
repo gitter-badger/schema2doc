@@ -1,0 +1,8 @@
+@this is additional documentation from@ 
+*TT_TASK.asciidoc*.
+
+should be integrated to schema2doc generated stuff.
+
+
+
+

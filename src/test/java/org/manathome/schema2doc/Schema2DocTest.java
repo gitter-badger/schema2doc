@@ -34,6 +34,7 @@ public class Schema2DocTest {
 	public void setUp() throws Exception {
 		Class.forName(H2ConnectTest.H2_DRIVER_NAME);
 		this.scanner = new GenericDbScanner(DriverManager.getConnection(H2ConnectTest.H2_TOTASK2_DB, "sa", ""));
+		this.scanner.setSchemaFilter(new String[] {"PUBLIC"});
 	}
 
 	/** writes asciidoc to temp file. */

@@ -22,4 +22,13 @@ public abstract class Convert {
 	public static <T> T nvl2(T nullableReference, T returnIfNotNull, T returnIfNull) {
 		return nullableReference == null ? returnIfNull : returnIfNotNull;
 	}
+	
+	/** return left portion of the string. very lenient, no exceptions! */
+	public static String left(final String s, int maxLength) {
+		if (s == null) {
+			return null;
+		} else {
+			return s.substring(0, Math.min(maxLength, s.length()));
+		}
+	}
 }

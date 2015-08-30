@@ -12,10 +12,15 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetFactory;
+import javax.sql.rowset.RowSetProvider;
 
 
 /** get meta data by jdbc onboard methods. 
@@ -191,6 +196,27 @@ public class GenericDbScanner implements IScanner {
 	@Override
 	public void setSchemaFilter(final String[] argSchema) {		
 		this.schemaToDocument = argSchema != null ? argSchema.clone() : null;		
+	}
+
+	@Override
+	public CachedRowSet getQueryData(@NotNull final IDbTable table, @NotNull final String sqlSelect) {
+
+		   RowSetFactory rowSetFactory = null;
+		   CachedRowSet  rowSet = null;
+		   
+		   try {			   
+			    Statement stmt = Require.notNull(this.connection, "connection").createStatement();
+			    ResultSet rs   = stmt.executeQuery(Require.notNull(sqlSelect, "sqlSelect"));
+
+		        rowSetFactory = RowSetProvider.newFactory();
+		        rowSet = rowSetFactory.createCachedRowSet();
+		        
+		        rowSet.populate(rs);
+		        return rowSet;
+		   } catch (Exception ex) {
+			   LOG.error("error retrieving data für table " + table.fqnName() + ": " + ex.getMessage(), ex);
+			   throw new ScannerException("error retrieving data from " + table.fqnName(), ex);
+		   }
 	}
 
 }

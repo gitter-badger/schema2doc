@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+import javax.sql.RowSet;
+
 
 /** tests. */
 public class GenericDbScannerTest {
@@ -33,7 +35,9 @@ public class GenericDbScannerTest {
 	
 	@After
 	public void tearDown() throws Exception {
-		conn.close();
+		if (conn != null) {
+			conn.close();
+		}
 	}
 
 	@Test
@@ -131,5 +135,39 @@ public class GenericDbScannerTest {
 		IDbTable table   = scanner.getTables().findFirst().get();
 		conn.close();
 	    assertTrue(scanner.getColumns(table).count() == 0);
+	}
+	
+	/** test actual select queries against connection. */
+	@Test
+	public void testGetQueryData() throws Exception {
+		IScanner scanner = new GenericDbScanner(conn);
+		IDbTable table   = scanner.getTables().filter(tbl -> tbl.getName().equalsIgnoreCase("TT_PROJECT")).findFirst().get();
+		
+		RowSet rs = scanner.getQueryData(table, "select * from TT_PROJECT");
+		conn.close();	// prove it! should be disconnected!
+		conn = null;
+		
+		assertNotNull(rs);
+		assertTrue("has columns", rs.getMetaData().getColumnCount() >= 1);
+		
+		int rowCounter = 0;
+		
+		while (rs.next()) {
+		     String name = rs.getString(2);
+		     long id = rs.getLong("ID");
+		     rowCounter++;
+		     LOG.debug("retrieved " + rowCounter + " offline row: " + name + ", " + id);
+		}
+		rs.beforeFirst();
+		while (rs.next()) {
+		     String val = rs.getString(2);
+		     String columnName = rs.getMetaData().getColumnLabel(2);
+		     assertNotNull("columnName", columnName);
+		     long id = rs.getLong("ID");
+		     LOG.debug("retrieve again offline row: " + columnName + "=" + val + ", ID=" + id);
+		     rowCounter--;
+		}
+		rs.close();
+		assertEquals("both iterations with same rowcount", 0, rowCounter);
 	}
 }

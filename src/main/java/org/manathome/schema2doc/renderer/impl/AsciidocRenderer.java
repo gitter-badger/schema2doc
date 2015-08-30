@@ -1,6 +1,9 @@
 package org.manathome.schema2doc.renderer.impl;
 
+import org.manathome.schema2doc.augmenter.ITableDataAugmenter;
+import org.manathome.schema2doc.augmenter.ITableDocumentationAugmenter;
 import org.manathome.schema2doc.renderer.IRenderer;
+import org.manathome.schema2doc.renderer.RenderException;
 import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbPrivilege;
 import org.manathome.schema2doc.scanner.IDbTable;
@@ -12,8 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.stream.Collectors;
+
+import javax.sql.rowset.CachedRowSet;
 
 /**
  * asciidoc output.
@@ -51,7 +57,7 @@ public class AsciidocRenderer implements IRenderer {
 	 * @see org.manathome.schema2doc.renderer.IRenderer#beginRenderTable(org.manathome.schema2doc.scanner.IDbTable)
 	 */
 	@Override
-	public void beginRenderTable(@NotNull IDbTable table) {
+	public void beginRenderTable(@NotNull IDbTable table, ITableDocumentationAugmenter tableDocAugmenter) {
 		Require.notNull(out, "out").println("[[" +  createTableFQN(table) + "]]"); // xrefable id
 		
 		out.println("==== Table " + 
@@ -59,7 +65,12 @@ public class AsciidocRenderer implements IRenderer {
 //					Convert.nvl2(table.getSchema(), table.getSchema() + "." , "") +
 					"*" + table.getName() + "*");
 		
-		out.println(Convert.nvl(table.getComment(), ""));
+		out.println(Convert.nvl(table.getComment(), ""));		
+		out.println("");
+		
+		if (tableDocAugmenter != null) {
+			out.print(Convert.nvl(tableDocAugmenter.getData(), ""));
+		}
 		
 		// begin table columns..
 		out.println("|===");
@@ -71,12 +82,49 @@ public class AsciidocRenderer implements IRenderer {
 	 * @see org.manathome.schema2doc.renderer.IRenderer#endRenderTable(org.manathome.schema2doc.scanner.IDbTable)
 	 */
 	@Override
-	public void endRenderTable(@NotNull final IDbTable table) {
+	public void endRenderTable(@NotNull final IDbTable table, ITableDataAugmenter tableDataAugmenter) {
 		Require.notNull(out, "out").println("|==="); // end columns table
 		out.println();
 		out.println("Grants: " + table.getPrivileges().map(IDbPrivilege::display).collect(Collectors.joining(", ")));
 		out.println();
 		out.println("Referenced by: " + table.getReferrer().map(IReference::display).collect(Collectors.joining(", ")));
+		
+		if (tableDataAugmenter != null && tableDataAugmenter.getData() != null) {
+			renderRowSet(tableDataAugmenter.getData());
+		}
+	}
+
+	private void renderRowSet(final CachedRowSet rowSet) {
+		
+		if (rowSet != null && rowSet.size() > 0) {
+			LOG.debug("rendering additional data for table");
+			out.println();
+			out.println("===== Data");
+			out.println("|===");
+			
+			try {				
+				final int columnCount = rowSet.getMetaData().getColumnCount();
+				
+				for (int i = 1; i <= columnCount; i++) {
+					out.print("| " + rowSet.getMetaData().getColumnLabel(i));
+				}
+				out.println(""); // needed to get header formatting for above line.
+				
+				// data rows
+				while (rowSet.next()) {
+					for (int i = 1; i <= columnCount; i++) {
+						out.print("| " + rowSet.getString(i));
+					}
+					out.println();
+				}	
+			} catch (SQLException ex) {
+				throw new RenderException("could not render data table" + ex.getMessage(), ex);
+			} finally {
+				out.println("|===");
+				out.println();
+				out.flush();
+			}
+		}
 	}
 
 	/* (non-Javadoc)

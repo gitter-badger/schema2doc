@@ -50,7 +50,7 @@ public class Schema2DocCmdTest {
 	@Test
 	public void testCommandLineOptions() throws Exception {
 		Options options = Schema2DocCmd.createCommandLineOptions();
-		assertThat(options.getOptions().size(), is(10));
+		assertThat(options.getOptions().size(), is(11));
 		assertTrue(options.hasOption("schema"));
 		assertTrue(options.hasOption("connection"));
 	}

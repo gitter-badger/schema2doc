@@ -1,13 +1,23 @@
 package org.manathome.schema2doc;
 
+import org.manathome.schema2doc.augmenter.IAugmenterConfiguration;
+import org.manathome.schema2doc.augmenter.ITableDataAugmenter;
+import org.manathome.schema2doc.augmenter.ITableDocumentationAugmenter;
+import org.manathome.schema2doc.augmenter.impl.TableDataAugmenter;
+import org.manathome.schema2doc.augmenter.impl.TableDocumentationAugmenter;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.IScanner;
 import org.manathome.schema2doc.util.NotNull;
 import org.manathome.schema2doc.util.Require;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +26,7 @@ import java.util.stream.Collectors;
  *  
  *  @see Schema2DocCmd for command line use
  */
-public class Schema2Doc {
+public class Schema2Doc implements IAugmenterConfiguration {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Schema2Doc.class);
 
@@ -24,6 +34,8 @@ public class Schema2Doc {
 	private IRenderer 	renderer;
 	private int 		tableCnt = 0;
 	private boolean 	isGroupedByCatalogAndSchema = true;
+
+	private String 		configPath = "config/schema2doc";
 
 	public Schema2Doc(@NotNull final IScanner scanner, @NotNull final IRenderer renderer) {
 		this.scanner 	= Require.notNull(scanner,  "scanner not set");
@@ -65,10 +77,18 @@ public class Schema2Doc {
 				currentSchema = table.getSchema();
 				renderer.renderSchema(currentSchema);
 			}
-			renderer.beginRenderTable(table);
+			
+			ITableDocumentationAugmenter tableDocAugmenter = new TableDocumentationAugmenter();
+			tableDocAugmenter.loadConfiguration(this, table);
+			
+			renderer.beginRenderTable(table, tableDocAugmenter);
 			tableCnt++;
 			scanner.getColumns(table).forEach(column -> renderer.renderColumn(column));
-			renderer.endRenderTable(table);
+			
+			ITableDataAugmenter tableDataAugmenter = new TableDataAugmenter();
+			tableDataAugmenter.loadConfiguration(this, table, scanner);
+			
+			renderer.endRenderTable(table, tableDataAugmenter);
 		}
 		renderer.endRenderDocumentation();
 
@@ -88,5 +108,42 @@ public class Schema2Doc {
 	/** should the documentation separate catalogs and schemas. */
 	public void setGroupedByCatalogAndSchema(boolean isGroupedByCatalogAndSchema) {
 		this.isGroupedByCatalogAndSchema = isGroupedByCatalogAndSchema;
+	}
+
+	/** return configuration file, null if not existing. */
+	@Override
+	public File getConfigFile(IDbTable table, String fileName) {
+
+		
+		Path path = Paths.get(getConfigPath());
+		if (Files.exists(path) && Files.isDirectory(path)) {
+			LOG.debug("using configuration path " + path.toAbsolutePath());
+			
+			if (table.getCatalog() != null) {
+				path = path.resolve(table.getCatalog());
+				if (Files.exists(path) && Files.isDirectory(path) && table.getSchema() != null) {
+					path = path.resolve(table.getSchema());
+				}
+			}
+			
+			path = path.resolve(Require.notNull(fileName, "fileName"));			
+			LOG.debug("search for config file: " + path.toString() + " exists: " + Files.exists(path));
+			
+			if (Files.exists(path) && !Files.isDirectory(path)) {
+				return path.toFile();
+			}
+		}
+		return null;
+		
+	}
+
+	/** path to augmenting data. */
+	private String getConfigPath() {
+		return this.configPath;
+	}
+
+	/** path to augmenting data. */
+	public void setConfigPath(@NotNull String configPath) {
+		this.configPath = configPath;	
 	}
 }

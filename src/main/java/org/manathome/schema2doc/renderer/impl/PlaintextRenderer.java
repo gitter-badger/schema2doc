@@ -1,5 +1,7 @@
 package org.manathome.schema2doc.renderer.impl;
 
+import org.manathome.schema2doc.augmenter.ITableDataAugmenter;
+import org.manathome.schema2doc.augmenter.ITableDocumentationAugmenter;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbTable;
@@ -33,17 +35,22 @@ public class PlaintextRenderer implements IRenderer {
 	 * @see org.manathome.schema2doc.renderer.impl.IRenderer#beginRenderTable(org.manathome.schema2doc.scanner.IDbTable)
 	 */
 	@Override
-	public void beginRenderTable(@NotNull IDbTable table) {
+	public void beginRenderTable(@NotNull IDbTable table, ITableDocumentationAugmenter tableDocAugmenter) {
 		out.println("---------------------------------------------------------------------");
 		out.println("- " + Require.notNull(table).getName() + " .. " + Convert.nvl(table.getComment(), ""));
 		out.println("---------------------------------------------------------------------");		
+		out.println("");
+		
+		if (tableDocAugmenter != null) {
+			out.print(Convert.nvl(tableDocAugmenter.getData(), ""));
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.manathome.schema2doc.renderer.impl.IRenderer#endRenderTable(org.manathome.schema2doc.scanner.IDbTable)
 	 */	
 	@Override
-	public void endRenderTable(@NotNull IDbTable table) {
+	public void endRenderTable(@NotNull IDbTable table, ITableDataAugmenter tableDataAugmenter) {
 		out.println("---------------------------------------------------------------------");		
 	}
 

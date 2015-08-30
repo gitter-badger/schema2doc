@@ -101,6 +101,29 @@ schema2doc {
 
 Execute above gradle task with _gradlew schema2doc_.
 
+=== augmenting the documentation
+
+schema2doc is able to enrich the extracted data with information contained in a config directory tree (default is _config/schema2doc_).
+
+[[img-config]]
+.config directory layout
+image::images/schema2doc.config.directories.png[screenshot_config, 600, 400]
+
+The layout of this directory is base/catalog/schema/ and can contain following files:
+
+==== table data queries
+
+Naming must be: _tablename_.data.sample.sql
+
+it can contain a simple select. The result of this query will be integrated in the table documentation.
+
+
+==== table documentation
+
+Naming must be: _tablename_.asciidoc
+
+the contents of this file will be included in the table description section of the generated document.
+
 == development notes
 
 The code for this project (written in java) is hosted at github: https://github.com/man-at-home/schema2doc, 

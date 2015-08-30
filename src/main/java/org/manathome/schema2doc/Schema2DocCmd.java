@@ -78,6 +78,8 @@ public class Schema2DocCmd {
 
 			LOG.debug("scanning database and render docs..");
 			Schema2Doc s2d = new Schema2Doc(scanner, renderer);
+			s2d.setConfigPath(cmdLine.getOptionValue("configPath", "config/schema2doc"));
+			
 			s2d.process();
 			LOG.debug("processing done, " + s2d.getRenderedTables() + " tables ..");
 			if (isVerbose) {
@@ -243,7 +245,13 @@ public class Schema2DocCmd {
 		cmdOptions.addOption(Option.builder("driver").desc("jdbc driver class (fqn) to use").argName("className")
 				.numberOfArgs(1).build());
 		cmdOptions.addOption(Option.builder("schema").desc("one or more schema to document, all if empty")
-				.argName("schemalist").hasArgs().optionalArg(true).build());	
+				.argName("schemalist").hasArgs().optionalArg(true).build());
+		
+		cmdOptions.addOption(Option.builder("configPath")
+							       .desc("config path, defaults to config/schema2doc")
+							       .argName("path")
+							       .numberOfArgs(1)
+							       .build());
 		
 		cmdOptions.addOption(Option.builder("renderer").desc("rendering engine, currently one of: asciidoc or plaintext")
 				.argName("implementation").numberOfArgs(1).build());

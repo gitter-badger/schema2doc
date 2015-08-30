@@ -3,17 +3,23 @@
 
 == V0.1
 
+2015-08-31
+
+* add augmenting for 
+** table data
+** table documentation
+
 2015-08-25
 
-- added -schema argument
-- initial upload to bintray with gradle
+* added -schema argument
+* initial upload to bintray with gradle
 
 2015-08-19
 
-- command line _out_ argument functional
-- more tests
-- incoming table references
+* command line _out_ argument functional
+* more tests
+* incoming table references
 
 2015-08-18
 
-- basic gradle plugin
+* basic gradle plugin

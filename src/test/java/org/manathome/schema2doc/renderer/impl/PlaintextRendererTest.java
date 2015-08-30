@@ -48,8 +48,8 @@ public class PlaintextRendererTest {
 	@Test
 	public void testRenderTable() throws Exception {
 		IDbTable table = new DbTableDefaultData(null, "dummy", "dummyTableName", "dummy-comment");
-		renderer.beginRenderTable(table);
-		renderer.endRenderTable(table);
+		renderer.beginRenderTable(table, null);
+		renderer.endRenderTable(table, null);
 		String result = out.toString("UTF-8");
 		
 		assertThat(result, containsString("dummyTableName"));
