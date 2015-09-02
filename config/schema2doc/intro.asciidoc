@@ -1,0 +1,14 @@
+== Abstract
+
+a lots of line
+_additional_ provided hand written asciidoc documentation.
+
+should be integrated into schema2doc generated stuff.
+
+at the header.
+
+*manfred*.
+
+
+
+

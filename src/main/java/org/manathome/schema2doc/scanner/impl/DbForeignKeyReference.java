@@ -2,6 +2,8 @@ package org.manathome.schema2doc.scanner.impl;
 
 import org.manathome.schema2doc.scanner.IForeignKeyReference;
 import org.manathome.schema2doc.scanner.IReference;
+import org.manathome.schema2doc.util.NotNull;
+import org.manathome.schema2doc.util.Require;
 
 /** reference from column to referenced table. */
 public class DbForeignKeyReference implements IForeignKeyReference {
@@ -15,15 +17,18 @@ public class DbForeignKeyReference implements IForeignKeyReference {
 	private String referencedTable;
 	private String referencedColumn;
 
-	public DbForeignKeyReference(String name, String column, int index,
+	public DbForeignKeyReference(@NotNull String name, String column, int index,
 			String referencedCatalog, String referencedSchema,
-			String referencedTable, String referencedColumn) {
-		this.name = name;
+			@NotNull String referencedTable, @NotNull String referencedColumn) {
+		
+		this.name = Require.notNull(name, "fk name");
 		this.column = column;
 		this.index = index;
+		
 		this.referencedCatalog = referencedCatalog;
-		this.referencedTable = referencedTable;
 		this.referencedSchema = referencedSchema;
+		this.referencedTable = Require.notNull(referencedTable, "ref table");
+		this.referencedColumn = Require.notNull(referencedColumn, "ref column");
 	}
 	
 	/* (non-Javadoc)
@@ -82,11 +87,6 @@ public class DbForeignKeyReference implements IForeignKeyReference {
 		return referencedColumn;
 	}
 
-	@Override
-	public String display() {
-		// TODO(man-at-home) Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public int compareTo(IReference o) {

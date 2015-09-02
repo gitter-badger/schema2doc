@@ -22,13 +22,15 @@ import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetFactory;
 import javax.sql.rowset.RowSetProvider;
 
-
-/** get meta data by jdbc onboard methods. 
+/**
+ * get meta data by jdbc onboard methods.
  * 
- * @see <a href="http://docs.oracle.com/javase/8/docs/api/java/sql/DatabaseMetaData.html">DatabaseMetaData</a>
- * */
+ * @see <a href=
+ *      "http://docs.oracle.com/javase/8/docs/api/java/sql/DatabaseMetaData.html">
+ *      DatabaseMetaData</a>
+ */
 public class GenericDbScanner implements IScanner {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(GenericDbScanner.class);
 
 	/** database connection. */
@@ -36,7 +38,7 @@ public class GenericDbScanner implements IScanner {
 
 	/** list of schema or null for all. */
 	private String[] schemaToDocument = null;
-	
+
 	public GenericDbScanner(@NotNull final Connection connection) {
 		this.connection = Require.notNull(connection);
 	}
@@ -48,55 +50,49 @@ public class GenericDbScanner implements IScanner {
 	 * @return list of tables in db.
 	 */
 	@Override
-	@NotNull public Stream<IDbTable> getTables() {
+	@NotNull
+	public Stream<IDbTable> getTables() {
 		LOG.debug("retrieve tables");
 		try {
+			
 			List<IDbTable> tables = new ArrayList<IDbTable>();
-			ResultSet rs = connection.getMetaData().getTables(null, null, "%", null);
-		    while (rs.next()) {
-		    	final String schema = rs.getString("TABLE_SCHEM");
-		    	if (schemaToDocument == null || 
-		    	    Arrays.stream(schemaToDocument).anyMatch(s -> s.equalsIgnoreCase(schema))) {
-			    	tables.add(
-			    			new DbTableDefaultData(
-			    			rs.getString("TABLE_CAT"),
-			    			schema,
-			    			rs.getString("TABLE_NAME"),
-			    			rs.getString("REMARKS")
-			    			));
-		    	}
-	        }
-		    
-		    for (IDbTable table : tables) {
-				rs = connection.getMetaData()
-						.getTablePrivileges(table.getCatalog(), 
-	  									    table.getSchema(),
-											table.getName());
-			    while (rs.next()) {
-			    	table.addPrivilege(new DbPrivilegeDefaultData(
-			    				rs.getString("GRANTEE"),
-			    				rs.getString("PRIVILEGE"))
-			    			);
-		        }
-		    }
+			ResultSet rsTable = connection.getMetaData().getTables(null, null, "%", null);
+			while (rsTable.next()) {
+				final String schema = rsTable.getString("TABLE_SCHEM");
+				if (schemaToDocument == null
+						|| Arrays.stream(schemaToDocument).anyMatch(s -> s.equalsIgnoreCase(schema))) {
+					tables.add(new DbTableDefaultData(rsTable.getString("TABLE_CAT"), schema,
+							rsTable.getString("TABLE_NAME"), rsTable.getString("REMARKS")));
+				}
+			}
+			rsTable.close();
 
-		    for (IDbTable table : tables) {
-				rs = connection.getMetaData()
-						.getExportedKeys(table.getCatalog(), 
-	  									 table.getSchema(),
-	  									 table.getName());
-			    while (rs.next()) {
-			    	table.addReferrer(new DbTableReferenceDefaultData(
-			    				rs.getString("FKTABLE_CAT"),
-			    				rs.getString("FKTABLE_SCHEM"),
-			    				rs.getString("FKTABLE_NAME"))
-			    			);
-		        }
-		    }		    
-		    
-		    return tables.stream();
+			for (IDbTable table : tables) {
+				try (ResultSet rsPrivilege = connection.getMetaData()
+						.getTablePrivileges(table.getCatalog(),	table.getSchema(), table.getName())) {
+					while (rsPrivilege.next()) {
+						table.addPrivilege(new DbPrivilegeDefaultData(rsPrivilege.getString("GRANTEE"),
+								rsPrivilege.getString("PRIVILEGE")));
+					}
+					rsPrivilege.close();
+				}
+			}
+
+			for (IDbTable table : tables) {
+				try (ResultSet rsKey = connection.getMetaData().getExportedKeys(table.getCatalog(), table.getSchema(),
+						table.getName())) {
+
+					while (rsKey.next()) {
+						table.addReferrer(new DbTableReferenceDefaultData(rsKey.getString("FKTABLE_CAT"),
+								rsKey.getString("FKTABLE_SCHEM"), rsKey.getString("FKTABLE_NAME")));
+					}
+					rsKey.close();
+				}
+			}
+
+			return tables.stream();
 		} catch (Exception ex) {
-			throw new ScannerException("error retrieving tables", ex);
+			throw new ScannerException("error retrieving tables " + ex.getMessage(), ex);
 		}
 	}
 
@@ -112,56 +108,63 @@ public class GenericDbScanner implements IScanner {
 		LOG.debug("retrieve columns for " + table);
 		try {
 			List<IDbColumn> columns = new ArrayList<>();
-			ResultSet rs = connection.getMetaData().getColumns(
+			try (ResultSet rsColumn = connection.getMetaData().getColumns(
 					Require.notNull(table).getCatalog(), 
 					table.getSchema(), 
 					Require.notNull(table).getName(), 
-					null)
-					;
-		    while (rs.next()) {
-		    	columns.add(
-		    			new DbColumnDefaultData(
-		    			rs.getString("COLUMN_NAME"),
-		    			rs.getString("TYPE_NAME"),
-		    			rs.getString("REMARKS"),
-		    			rs.getInt("COLUMN_SIZE"),
-		    			rs.getInt("DECIMAL_DIGITS"),
-		    			rs.getString("IS_NULLABLE")
-		    			));
-	        }
-		    
-		    LOG.debug("retrieve primary key information for " + table);
-		    try {
-			    rs = connection.getMetaData().getPrimaryKeys(table.getCatalog(), table.getSchema(), table.getName());
-			    while (rs.next()) {
-				    String columnName = rs.getString("COLUMN_NAME");
-				    int    keySeq     = rs.getInt("KEY_SEQ");
-				    LOG.debug("found PK column: " + columnName + " index " + keySeq);
-				    
-						columns
-							.stream()
-							.filter(c -> c.getName().equals(columnName))
-							.findFirst()
-							.ifPresent(c -> c.setPrimaryKey(keySeq));
-		        } 
-		    } catch (SQLException ex) {
-	        	LOG.error("primary key information not processed for " + table, ex);
-	        }
+					null)) {
+						
+			    while (rsColumn.next()) {
+			    	columns.add(
+			    			new DbColumnDefaultData(
+			    			rsColumn.getString("COLUMN_NAME"),
+			    			rsColumn.getString("TYPE_NAME"),
+			    			rsColumn.getString("REMARKS"),
+			    			rsColumn.getInt("COLUMN_SIZE"),
+			    			rsColumn.getInt("DECIMAL_DIGITS"),
+			    			rsColumn.getString("IS_NULLABLE")
+			    			));
+		        }
+			    rsColumn.close();
+			}
+			    
+			LOG.debug("retrieve primary key information for " + table);
+			try (ResultSet rsKey = connection.getMetaData().getPrimaryKeys(
+				    		table.getCatalog(), 
+				    		table.getSchema(), 
+				    		table.getName())) {
+				    while (rsKey.next()) {
+					    String columnName = rsKey.getString("COLUMN_NAME");
+					    int    keySeq     = rsKey.getInt("KEY_SEQ");
+					    LOG.debug("found PK column: " + columnName + " index " + keySeq);
+					    
+							columns
+								.stream()
+								.filter(c -> c.getName().equals(columnName))
+								.findFirst()
+								.ifPresent(c -> c.setPrimaryKey(keySeq));
+			        } 
+				    rsKey.close();
+			} catch (SQLException ex) {
+				LOG.error("primary key information not processed for " + table, ex);
+			}
 		    
 		    
 		    LOG.debug("retrieve foreign key information for " + table);
-		    try {
-			    rs = connection.getMetaData().getImportedKeys(table.getCatalog(), table.getSchema(), table.getName());
+		    try (ResultSet rsKey = connection.getMetaData().getImportedKeys(
+			    		table.getCatalog(), 
+			    		table.getSchema(), 
+			    		table.getName())) {
 			    
-			    while (rs.next()) {
+			    while (rsKey.next()) {
 
-				    String fkColumnName = rs.getString("FKCOLUMN_NAME");
-				    String name = rs.getString("FK_NAME");
-					int keySeq = rs.getInt("KEY_SEQ");
-					String refCatalog =  rs.getString("PKTABLE_CAT");
-					String refSchema  =  rs.getString("PKTABLE_SCHEM");
-					String refTable   =  rs.getString("PKTABLE_NAME");
-					String refColumn  =  rs.getString("PKCOLUMN_NAME");
+				    String fkColumnName = rsKey.getString("FKCOLUMN_NAME");
+				    String name       =  rsKey.getString("FK_NAME");
+					int    keySeq 	  =  rsKey.getInt("KEY_SEQ");
+					String refCatalog =  rsKey.getString("PKTABLE_CAT");
+					String refSchema  =  rsKey.getString("PKTABLE_SCHEM");
+					String refTable   =  rsKey.getString("PKTABLE_NAME");
+					String refColumn  =  rsKey.getString("PKCOLUMN_NAME");
 					
 					LOG.debug("found foreign key reference for " + fkColumnName + " to " + refTable + "." + refColumn);
 					
@@ -182,41 +185,52 @@ public class GenericDbScanner implements IScanner {
 										   );			    			   
 			    		   });				    
 				    
-		        } 
+		        }
+			    rsKey.close();
 		    } catch (SQLException ex) {
 	        	LOG.error("foreign key information not processed for table " + table.getName(), ex);
 	        }		    
 		    
 		    return columns.stream();
+		    
 		} catch (Exception ex) {
-			throw new ScannerException("error retrieving colums for " + table, ex);
+			throw new ScannerException("error retrieving colums for " + table + ", " + ex.getMessage(), ex);
 		}
 	}
 
+	/** a list of db schema for which the documentation should be generated. */
 	@Override
-	public void setSchemaFilter(final String[] argSchema) {		
-		this.schemaToDocument = argSchema != null ? argSchema.clone() : null;		
+	public void setSchemaFilter(final String[] argSchema) {
+		this.schemaToDocument = argSchema != null ? argSchema.clone() : null;
 	}
 
+	/** execute an SELECT query.
+	 * 
+	 * @param table			table where the resulting data table should belong to.
+	 * @param sqlSelect		sql query
+	 * 
+	 * @return a disconnect rowset with the selected data.
+	 */
 	@Override
 	public CachedRowSet getQueryData(@NotNull final IDbTable table, @NotNull final String sqlSelect) {
 
-		   RowSetFactory rowSetFactory = null;
-		   CachedRowSet  rowSet = null;
-		   
-		   try {			   
-			    Statement stmt = Require.notNull(this.connection, "connection").createStatement();
-			    ResultSet rs   = stmt.executeQuery(Require.notNull(sqlSelect, "sqlSelect"));
+		RowSetFactory rowSetFactory = null;
+		CachedRowSet rowSet = null;
 
-		        rowSetFactory = RowSetProvider.newFactory();
-		        rowSet = rowSetFactory.createCachedRowSet();
-		        
-		        rowSet.populate(rs);
-		        return rowSet;
-		   } catch (Exception ex) {
-			   LOG.error("error retrieving data für table " + table.fqnName() + ": " + ex.getMessage(), ex);
-			   throw new ScannerException("error retrieving data from " + table.fqnName(), ex);
-		   }
+		try (Statement stmt = Require.notNull(this.connection, "connection").createStatement()) {
+			ResultSet rsQuery = stmt.executeQuery(Require.notNull(sqlSelect, "sqlSelect"));
+
+			rowSetFactory = RowSetProvider.newFactory();
+			rowSet = rowSetFactory.createCachedRowSet();
+
+			rowSet.populate(rsQuery);
+			
+			rsQuery.close();
+			return rowSet;
+		} catch (Exception ex) {
+			LOG.error("error retrieving data für table " + table.fqnName() + ": " + ex.getMessage(), ex);
+			throw new ScannerException("error retrieving data from " + table.fqnName(), ex);
+		}
 	}
 
 }

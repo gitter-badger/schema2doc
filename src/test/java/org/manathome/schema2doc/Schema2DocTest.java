@@ -57,7 +57,7 @@ public class Schema2DocTest {
 
 	/** writes asciidoc example to schema2doc.example.h2.asciidoc file. */
 	@Test
-	public void testH2SampleAsciidocProcess() throws Exception {
+	public void testH2Totask2GenAsciidocProcess() throws Exception {
 
 		File outFile = new File("src/docs/examples/schema2doc.totask2.qa.db.h2.example.asciidoc");
 		LOG.debug("writing test asciidoc to " + outFile.getAbsolutePath());
@@ -71,6 +71,27 @@ public class Schema2DocTest {
 		assertTrue("asciidoc not exists", outFile.exists());
 		assertTrue("asciidoc not filled", outFile.length() > 10);
 	}
+	
+	/** writes asciidoc example to schema2doc.example.h2.asciidoc file. */
+	@Test
+	public void testH2Schema2DocGenAsciidocProcess() throws Exception {
+
+		Class.forName(H2ConnectTest.H2_DRIVER_NAME);
+		this.scanner = new GenericDbScanner(DriverManager.getConnection(H2ConnectTest.H2_SCHEMA2DOC_DB, "sa", ""));
+		this.scanner.setSchemaFilter(new String[] {"PUBLIC"});
+		
+		File outFile = new File("src/docs/examples/schema2doc.schema2doc.db.h2.example.asciidoc");
+		LOG.debug("writing test asciidoc to " + outFile.getAbsolutePath());
+		
+		IRenderer renderer = new AsciidocRenderer(
+				new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"), true)
+				);
+		Schema2Doc s2d = new Schema2Doc(scanner, renderer);
+		s2d.process();
+		
+		assertTrue("asciidoc not exists", outFile.exists());
+		assertTrue("asciidoc not filled", outFile.length() > 10);
+	}	
 	
 	
 	/** writes asciidoc to temp file. */

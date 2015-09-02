@@ -2,6 +2,10 @@
 
 
 == V0.1
+2015-09-01
+* fix resultset leak
+* add document header augmenter
+* change configPath
 
 2015-08-31
 

@@ -17,6 +17,9 @@ public class H2ConnectTest {
 	/** ./totask2.qa.db. */
 	public static final String H2_TOTASK2_DB =  "jdbc:h2:./totask2.qa.db";
 
+	/** schema2doc.test.h2.db. */
+	public static final String H2_SCHEMA2DOC_DB =  "jdbc:h2:./schema2doc.test.h2.db";	
+	
 	@Test
 	public void testOpenConnection() throws Exception {
 		Class.forName(H2_DRIVER_NAME);

@@ -35,7 +35,7 @@ apply plugin: "com.jfrog.bintray"
 
 
 group   = 'org.manathome'
-version = '0.1.4'
+version = '0.1.5'
 
 repositories {
         mavenLocal()
@@ -229,7 +229,7 @@ bintray {
         publicDownloadNumbers = false
         
         version {
-                name = '0.1.4'					// adapt
+                name = '0.1.5'					// adapt
                 desc = 'under development'
         }
     }

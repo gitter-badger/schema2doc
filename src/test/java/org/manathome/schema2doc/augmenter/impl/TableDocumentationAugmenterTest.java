@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.manathome.schema2doc.augmenter.ITableDocumentationAugmenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,7 @@ public class TableDocumentationAugmenterTest extends AugmenterTestBase {
 	
 	@Test
 	public void testRetrieveDocData_TT_TASK() throws Exception {		
-		ITableDocumentationAugmenter aug = new TableDocumentationAugmenter();
+		TableDocumentationAugmenter aug = new TableDocumentationAugmenter();
 		aug.loadConfiguration(s2d, taskTable);
 		
 		assertNotNull(aug.getData());

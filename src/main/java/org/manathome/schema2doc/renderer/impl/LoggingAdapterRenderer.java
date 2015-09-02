@@ -1,7 +1,7 @@
 package org.manathome.schema2doc.renderer.impl;
 
+import org.manathome.schema2doc.augmenter.IDocumentationAugmenter;
 import org.manathome.schema2doc.augmenter.ITableDataAugmenter;
-import org.manathome.schema2doc.augmenter.ITableDocumentationAugmenter;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbTable;
@@ -30,7 +30,7 @@ public final class LoggingAdapterRenderer implements IRenderer {
 	 * @see org.manathome.schema2doc.renderer.IRenderer#beginRenderTable(org.manathome.schema2doc.scanner.IDbTable)
 	 */
 	@Override
-	public void beginRenderTable(@NotNull IDbTable table, ITableDocumentationAugmenter tableDocAugmenter) {
+	public void beginRenderTable(@NotNull IDbTable table, IDocumentationAugmenter tableDocAugmenter) {
 		if (table == null) {
 			LOG.error("table is null");
 		} else {			
@@ -39,7 +39,7 @@ public final class LoggingAdapterRenderer implements IRenderer {
 			LOG.debug("          comment {}", table.getComment());
 		}
 		if (isVerbose) {
-			System.out.print(" render " + table.fqnName() + ".. ");
+			System.out.print(" render " + (table != null ? table.fqnName() : "null-table") + ".. ");
 		}
 		wrappedRenderer.beginRenderTable(table, tableDocAugmenter);
 	}
@@ -79,12 +79,12 @@ public final class LoggingAdapterRenderer implements IRenderer {
 	}
 
 	@Override
-	public void beginRenderDocumentation() {
+	public void beginRenderDocumentation(IDocumentationAugmenter docAugmenter) {
 		LOG.debug("begin render documentation");
 		if (isVerbose) {
 			System.out.print("render documentation");
 		}
-		wrappedRenderer.beginRenderDocumentation();		
+		wrappedRenderer.beginRenderDocumentation(docAugmenter);		
 	}
 
 	@Override

@@ -84,7 +84,7 @@ public class PlaintextRendererTest {
 
 	@Test 
 	public void testRenderDocument() throws Exception {
-		renderer.beginRenderDocumentation();
+		renderer.beginRenderDocumentation(null);
 		renderer.endRenderDocumentation();
 		String result = out.toString("UTF-8");
 		assertThat(result, containsString("schema2doc plaintext documentation"));

@@ -2,7 +2,7 @@ package org.manathome.schema2doc;
 
 import org.manathome.schema2doc.augmenter.IAugmenterConfiguration;
 import org.manathome.schema2doc.augmenter.ITableDataAugmenter;
-import org.manathome.schema2doc.augmenter.ITableDocumentationAugmenter;
+import org.manathome.schema2doc.augmenter.impl.DocumentHeaderAugmenter;
 import org.manathome.schema2doc.augmenter.impl.TableDataAugmenter;
 import org.manathome.schema2doc.augmenter.impl.TableDocumentationAugmenter;
 import org.manathome.schema2doc.renderer.IRenderer;
@@ -54,7 +54,9 @@ public class Schema2Doc implements IAugmenterConfiguration {
 		Require.notNull(renderer, "renderer not set, did you try to reuse this instance?");
 		Require.notNull(scanner,  "scanner not set, did you try to reuse this instance?");
 		
-		renderer.beginRenderDocumentation();
+		DocumentHeaderAugmenter docAugmenter = new DocumentHeaderAugmenter();
+		docAugmenter.loadConfiguration(this);
+		renderer.beginRenderDocumentation(docAugmenter);
 
 		List<IDbTable> tables = null;
 		if (isGroupedByCatalogAndSchema()) {
@@ -78,7 +80,7 @@ public class Schema2Doc implements IAugmenterConfiguration {
 				renderer.renderSchema(currentSchema);
 			}
 			
-			ITableDocumentationAugmenter tableDocAugmenter = new TableDocumentationAugmenter();
+			TableDocumentationAugmenter tableDocAugmenter = new TableDocumentationAugmenter();
 			tableDocAugmenter.loadConfiguration(this, table);
 			
 			renderer.beginRenderTable(table, tableDocAugmenter);
@@ -109,20 +111,19 @@ public class Schema2Doc implements IAugmenterConfiguration {
 	public void setGroupedByCatalogAndSchema(boolean isGroupedByCatalogAndSchema) {
 		this.isGroupedByCatalogAndSchema = isGroupedByCatalogAndSchema;
 	}
-
+	
 	/** return configuration file, null if not existing. */
 	@Override
-	public File getConfigFile(IDbTable table, String fileName) {
+	public File getConfigFile(String catalog, String schema, String table, String fileName) {
 
-		
 		Path path = Paths.get(getConfigPath());
 		if (Files.exists(path) && Files.isDirectory(path)) {
 			LOG.debug("using configuration path " + path.toAbsolutePath());
 			
-			if (table.getCatalog() != null) {
-				path = path.resolve(table.getCatalog());
-				if (Files.exists(path) && Files.isDirectory(path) && table.getSchema() != null) {
-					path = path.resolve(table.getSchema());
+			if (catalog != null) {
+				path = path.resolve(catalog);
+				if (Files.exists(path) && Files.isDirectory(path) && schema != null) {
+					path = path.resolve(schema);
 				}
 			}
 			
@@ -133,8 +134,13 @@ public class Schema2Doc implements IAugmenterConfiguration {
 				return path.toFile();
 			}
 		}
-		return null;
-		
+		return null;		
+	}
+
+	/** return configuration file, null if not existing. */
+	@Override
+	public File getConfigFile(IDbTable table, String fileName) {
+		return getConfigFile(table.getCatalog(), table.getSchema(), table.getName(), fileName);
 	}
 
 	/** path to augmenting data. */

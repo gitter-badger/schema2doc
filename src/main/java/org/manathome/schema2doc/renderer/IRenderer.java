@@ -1,7 +1,7 @@
 package org.manathome.schema2doc.renderer;
 
+import org.manathome.schema2doc.augmenter.IDocumentationAugmenter;
 import org.manathome.schema2doc.augmenter.ITableDataAugmenter;
-import org.manathome.schema2doc.augmenter.ITableDocumentationAugmenter;
 import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.util.NotNull;
@@ -12,10 +12,10 @@ import java.io.PrintWriter;
 public interface IRenderer extends AutoCloseable {
 	
 	/** start of document creation. */
-	void beginRenderDocumentation();
+	void beginRenderDocumentation(IDocumentationAugmenter docAugmenter);
 
 	/** document table (header). */
-	void beginRenderTable(@NotNull IDbTable table, ITableDocumentationAugmenter tableDocAugmenter);
+	void beginRenderTable(@NotNull IDbTable table, IDocumentationAugmenter tableDocAugmenter);
 
 	/** document table (footer). 
 	 * @param tableDataAugmenter */

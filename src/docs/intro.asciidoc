@@ -64,35 +64,34 @@ Execute above commandline through the _org.manathome.schema2doc.Schema2DocCmd_ c
 
 === gradle plugin
 
-[source,groovy,indent=0]
+[source,groovy]
 ----
 buildscript {
     repositories {
 
-    	maven{url "https://dl.bintray.com/man-at-home/maven"}	// <1> hosting for schema2doc binary
-		...
-	dependencies {
+        maven{url "https://dl.bintray.com/man-at-home/maven"}   // <1>
+        ...
+    dependencies {
         classpath group: 'org.manathome', name: 'Schema2DocPlugin',
-				  version: '0.1.2'
+                  version: '0.1.2'
 
-        classpath "com.h2database:h2:1.4.187"               // <2> used database driver, here: h2
-		...
+        classpath "com.h2database:h2:1.4.187"               // <2>
+        ...
 
 apply plugin: "org.manathome.Schema2DocPlugin"
 
 schema2doc {
-  // <2> configuring input
+  // <3>
   scanner             = "Generic"
   connection          = "jdbc:h2:./schema2doc.test.h2.db"
   driver              = "org.h2.Driver"
   user                = "sa"
   schema              = ["PUBLIC"]
 
-  // <3> configuring output
+  // <4>
   renderer            = "asciidoc"
   out                 = "${buildDir}"
 }
-
 ----
 <1> get access to schema2doc library on bintray
 <2> include database driver for your database
@@ -107,7 +106,7 @@ schema2doc is able to enrich the extracted data with information contained in a 
 
 [[img-config]]
 .config directory layout
-image::images/schema2doc.config.directories.png[screenshot_config, 600, 400]
+image::images/schema2doc.config.directories.png[screenshot_config, 300, 300]
 
 The layout of this directory is base/catalog/schema/ and can contain following files:
 
