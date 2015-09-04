@@ -46,11 +46,13 @@ public class AsciidocRenderer implements IRenderer {
 	@Override
 	public void renderCatalog(@NotNull String catalog) {
 		Require.notNull(out, "out").println("== Catalog " + catalog);
+		LOG.debug("render catalog " + catalog);
 	}
 
 	@Override
 	public void renderSchema(@NotNull String schema) {
 		Require.notNull(out, "out").println("=== Schema " + schema);
+		LOG.debug("render schema " + schema);
 	}	
 	
 	/* (non-Javadoc)
@@ -76,6 +78,7 @@ public class AsciidocRenderer implements IRenderer {
 		out.println("|===");
 		out.println("|Column | PK | Type | Comment | Size | Constraints");
 		out.println(""); // needed to get header formatting for above line.
+		out.flush();
 	}
 
 	/* (non-Javadoc)
@@ -92,6 +95,7 @@ public class AsciidocRenderer implements IRenderer {
 		if (tableDataAugmenter != null && tableDataAugmenter.getData() != null) {
 			renderRowSet(tableDataAugmenter.getData());
 		}
+		out.flush();
 	}
 
 	private void renderRowSet(final CachedRowSet rowSet) {
@@ -159,6 +163,7 @@ public class AsciidocRenderer implements IRenderer {
 
 	@Override
 	public void beginRenderDocumentation(IDocumentationAugmenter docAugmenter) {
+		LOG.debug("render document");
 		Require.notNull(out, "out").println("= schema2doc database documentation");
 		out.println(":Date:    " + new Date());
 		out.println(":numbered:"); 
@@ -178,6 +183,7 @@ public class AsciidocRenderer implements IRenderer {
 
 	@Override
 	public void endRenderDocumentation() {
+		LOG.debug("render document ended.");
 		Require.notNull(out, "out").println("");
 		out.println("document generated at " + new Date());
 		out.flush();

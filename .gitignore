@@ -8,3 +8,4 @@ nbproject/
 schemadocumentation.*.adoc
 build.xml
 manifest.mf
+lib/ojdbc7.jar

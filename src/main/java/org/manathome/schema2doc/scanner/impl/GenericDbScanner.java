@@ -54,11 +54,18 @@ public class GenericDbScanner implements IScanner {
 	public Stream<IDbTable> getTables() {
 		LOG.debug("retrieve tables");
 		try {
-			
+			long tableReadCount = 0;
 			List<IDbTable> tables = new ArrayList<IDbTable>();
 			ResultSet rsTable = connection.getMetaData().getTables(null, null, "%", null);
 			while (rsTable.next()) {
 				final String schema = rsTable.getString("TABLE_SCHEM");
+				
+				if ( tableReadCount == 0 || ( tableReadCount % 100 ) == 0 )
+				{
+				    LOG.debug(" ... scanning table " + tableReadCount + ", thereof relevant " + tables.size() + " currently " + rsTable.getString("TABLE_NAME"));
+				}
+				tableReadCount++;
+				
 				if (schemaToDocument == null
 						|| Arrays.stream(schemaToDocument).anyMatch(s -> s.equalsIgnoreCase(schema))) {
 					tables.add(new DbTableDefaultData(rsTable.getString("TABLE_CAT"), schema,
@@ -66,8 +73,18 @@ public class GenericDbScanner implements IScanner {
 				}
 			}
 			rsTable.close();
+			
+			LOG.debug("scanning table columns for " + tables.size() + " tables.. ");
 
+			long tableProcessedCount = 0;
 			for (IDbTable table : tables) {
+				
+				if ( tableProcessedCount == 0 || ( tableProcessedCount % 100 ) == 0 )
+				{
+				    LOG.debug(" ... scanning columns for " + tableProcessedCount + ". table " + table.fqnName());
+				}
+				tableProcessedCount++;
+				
 				try (ResultSet rsPrivilege = connection.getMetaData()
 						.getTablePrivileges(table.getCatalog(),	table.getSchema(), table.getName())) {
 					while (rsPrivilege.next()) {
@@ -77,18 +94,34 @@ public class GenericDbScanner implements IScanner {
 					rsPrivilege.close();
 				}
 			}
+			
+			LOG.debug("scanning keys..");
 
+			tableProcessedCount = 0;
 			for (IDbTable table : tables) {
-				try (ResultSet rsKey = connection.getMetaData().getExportedKeys(table.getCatalog(), table.getSchema(),
+				
+				if ( tableProcessedCount == 0 || ( tableProcessedCount % 10 ) == 0 )
+				{
+				    LOG.debug(" ... scanning foreign keys for " + tableProcessedCount + ". table " + table.fqnName());
+				}
+				tableProcessedCount++;				
+				
+				try (ResultSet rsKey = connection.getMetaData().getExportedKeys(
+						table.getCatalog(), 
+						table.getSchema(),
 						table.getName())) {
 
 					while (rsKey.next()) {
-						table.addReferrer(new DbTableReferenceDefaultData(rsKey.getString("FKTABLE_CAT"),
-								rsKey.getString("FKTABLE_SCHEM"), rsKey.getString("FKTABLE_NAME")));
+						table.addReferrer(new DbTableReferenceDefaultData(
+								rsKey.getString("FKTABLE_CAT"),
+								rsKey.getString("FKTABLE_SCHEM"), 
+								rsKey.getString("FKTABLE_NAME")));
 					}
 					rsKey.close();
 				}
 			}
+			
+			LOG.debug("scanning tables done.");
 
 			return tables.stream();
 		} catch (Exception ex) {

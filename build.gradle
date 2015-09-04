@@ -42,7 +42,7 @@ repositories {
         mavenCentral()
         
         maven{url "http://gradle.artifactoryonline.com/gradle/libs/"}
-        jcenter()
+        jcenter()        
 }
 
 buildscript {
@@ -73,7 +73,9 @@ dependencies {
    
    testCompile "junit:junit:4.12"							 // unit tests
    testCompile "com.h2database:h2:1.4.187"					 // dev database (usable in memory)
- }
+   
+   compile fileTree(dir: 'lib', include: ['*.jar'])
+}
 
 
 jdepend {
