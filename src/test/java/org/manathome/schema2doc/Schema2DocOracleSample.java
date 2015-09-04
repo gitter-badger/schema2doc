@@ -2,13 +2,9 @@ package org.manathome.schema2doc;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.sql.DriverManager;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.renderer.impl.AsciidocRenderer;
@@ -17,7 +13,16 @@ import org.manathome.schema2doc.scanner.impl.GenericDbScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** test with larger oracle db. */
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.sql.DriverManager;
+
+/** test with larger oracle db. 
+ * 
+ * 
+ * */
 public class Schema2DocOracleSample {
 
 	
@@ -29,6 +34,8 @@ public class Schema2DocOracleSample {
 	public void setUp() throws Exception {
 	}
 
+	/** optional test: using oracle. */
+	@Ignore
 	@Test
 	public void testEoxe() throws Exception {
 
