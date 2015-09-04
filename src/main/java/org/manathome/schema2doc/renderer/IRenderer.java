@@ -8,32 +8,60 @@ import org.manathome.schema2doc.util.NotNull;
 
 import java.io.PrintWriter;
 
-/** output generator for schema documentation. */
+/** output generator for schema documentation. 
+ * 
+ * @author man-from-home
+ */
 public interface IRenderer extends AutoCloseable {
 	
-	/** start of document creation. */
+	/** 
+	 * start of document creation. 
+	 * 
+	 * @param docAugmenter 			optional additional documentation header text, user provided.
+	 * */
 	void beginRenderDocumentation(IDocumentationAugmenter docAugmenter);
 
-	/** document table (header). */
+	/** 
+	 * document table (header). 
+	 * 
+	 * @param table					current table
+	 * @param tableDocAugmenter		optional additional table description, user provided.
+	 * */
 	void beginRenderTable(@NotNull IDbTable table, IDocumentationAugmenter tableDocAugmenter);
 
-	/** document table (footer). 
-	 * @param tableDataAugmenter */
+	/** 
+	 * document table (footer).
+	 *  
+	 * @param table                 current table
+	 * @param tableDataAugmenter 	optional additional table data (content) to add.
+	 */
 	void endRenderTable(@NotNull IDbTable table, ITableDataAugmenter tableDataAugmenter);
 
-	/** document one column. */
+	/** document one table column. */
 	void renderColumn(@NotNull IDbColumn column);
 	
 	/** end of document creation. */
 	void endRenderDocumentation();
 
-	/** optional grouping. */
+	/** 
+	 * optional grouping by catalog
+	 * 
+	 *  only called if grouping by catalog is required.
+	 */
 	void renderCatalog(@NotNull String catalog);
 
-	/** optional grouping. */
+	/** 
+	 * optional grouping by schema (withing catalog)
+	 * 
+	 *  only called if grouping by shema is required.
+	 * */
 	void renderSchema(@NotNull String schema);
 
-	/** suggest a suitable filename for this type of renderer. */
+	/** 
+	 * suggest a suitable filename for this type of renderer. 
+	 * 
+	 * @return a filenae suitable for this renderer.
+	 */
 	String getSuggestedFilename();
 
 	/** current out writer to render into. */

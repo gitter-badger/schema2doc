@@ -1,12 +1,14 @@
 package org.manathome.schema2doc.util;
 
-/** converter utility. 
+/** 
+ * converter utility. 
  * 
  * @author man-at-home
  * */
 public abstract class Convert {
 
-	/** replace null values with defaults. 
+	/** 
+	 * replace null values with defaults. 
 	 * 
 	 * @return nullableReference == null ? nullReplacementValue : nullableReference;
 	 * */
@@ -23,7 +25,12 @@ public abstract class Convert {
 		return nullableReference == null ? returnIfNull : returnIfNotNull;
 	}
 	
-	/** return left portion of the string. very lenient, no exceptions! */
+	/** 
+	 * return left portion of the string s. 
+	 * very lenient, no exceptions!
+	 *  
+	 * @return left part of s or null, never more than maxLength letters. 
+	 * */
 	public static String left(final String s, int maxLength) {
 		if (s == null) {
 			return null;

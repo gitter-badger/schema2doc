@@ -22,23 +22,25 @@ import java.util.stream.Collectors;
 import javax.sql.rowset.CachedRowSet;
 
 /**
- * asciidoc output.
- * 
- * @author man-at-home
+ * generating asciidoc output.
  *
+ * @see    <a href="http://asciidoctor.org">asciidoctor.org</a>
+ * @author man-at-home
  */
 public class AsciidocRenderer implements IRenderer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AsciidocRenderer.class);
     
+    /** out stream to render to. */
     private PrintWriter out = null;
 
-    /** out stream to render to. */
+    /** .ctor. */
 	public AsciidocRenderer(@NotNull final PrintWriter out) {
 		this();
 		this.setOut(out);
 	}
 	
+    /** .ctor. */
 	public AsciidocRenderer() {
 		LOG.debug("using asciidoc renderer..");		
 	}

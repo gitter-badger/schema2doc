@@ -133,6 +133,8 @@ public class Schema2DocCmd {
 			throw new RenderException("unknown rendering engine: " + rendererImplementation);
 		}
 		
+		try {
+		
 		// logging
 		if (isVerbose) {
 			renderer = new LoggingAdapterRenderer(renderer, true);
@@ -159,6 +161,15 @@ public class Schema2DocCmd {
 		renderer.setOut(out);
 		
 		return renderer;
+		
+		} catch (final Exception ex) {
+			LOG.error("error preparing renderer " + rendererImplementation, ex);
+			if (renderer != null) {
+				renderer.close();	// close resources.
+				renderer = null;
+			}
+			throw ex;
+		}
 	}
 	
 	/** create suitable scanner from command line args. */

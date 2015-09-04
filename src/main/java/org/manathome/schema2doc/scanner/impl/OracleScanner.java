@@ -14,7 +14,7 @@ import java.sql.Connection;
 public class OracleScanner extends GenericDbScanner {
 	
 	public OracleScanner(Connection con) {
-		super(con);
+		super(con, true);
 	}
 	
 }

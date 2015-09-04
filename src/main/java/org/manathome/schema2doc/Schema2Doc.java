@@ -49,6 +49,7 @@ public class Schema2Doc implements IAugmenterConfiguration {
 
 	/** pump through scanner -> renderer pipeline. */
 	public void process() throws Exception {
+			
 		LOG.info("running Schema2Doc ..");
 
 		Require.notNull(renderer, "renderer not set, did you try to reuse this instance?");

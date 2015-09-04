@@ -56,6 +56,18 @@ public class GenericDbScannerTest {
 	    			assertNotNull(tbl.getName());
 	    		});
 	}
+	
+	
+	/** test parallel streams reading of database metaddata. */
+	@Test
+	public void testGetTablesWithParallelStream() {
+		IScanner scanner = new GenericDbScanner(conn, true);
+	    scanner.getTables().forEach(tbl ->
+	    		{
+	    			LOG.debug("table: " + tbl.getName() + ", " + tbl.getComment());
+	    			assertNotNull(tbl.getName());
+	    		});
+	}	
 
 	@Test
 	public void testGetColumns() {
