@@ -3,6 +3,8 @@ schema2doc
 :Author: man-at-home
 :Date:   2015-08-28
 
+:source-highlighter: coderay
+
 == summary
 
 schema2doc will be a documentation tool that scans a database structure and emitting documentation (table, columns etc.)
@@ -106,7 +108,7 @@ schema2doc is able to enrich the extracted data with information contained in a 
 
 [[img-config]]
 .config directory layout
-image::images/schema2doc.config.directories.png[screenshot_config, 300, 300]
+image::images/schema2doc.config.directories.png[screenshot_config, 400, 75]
 
 The layout of this directory is base/catalog/schema/ and can contain following files:
 

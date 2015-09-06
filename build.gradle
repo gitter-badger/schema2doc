@@ -9,6 +9,32 @@
  * @version 2015
  */
 
+
+buildscript {
+
+   repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+    
+    dependencies {
+//      classpath "org.asciidoctor:asciidoctor-gradle-plugin:1.5.2" 							// asciidoctor doc
+        classpath "org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.9"
+        classpath "org.flywaydb:flyway-gradle-plugin:3.2.1"										// db migration
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.3.1"						// upload
+    }
+}
+
+plugins {
+        id 'org.asciidoctor.convert' version '1.5.2'
+        id 'com.github.jruby-gradle.base' version '0.3.0'
+}
+
+
+group   = 'org.manathome'
+version = '0.1.5'
+
 // development
 apply plugin: "java"
 apply plugin: "eclipse"
@@ -34,30 +60,12 @@ apply plugin: "maven-publish"
 apply plugin: "com.jfrog.bintray"
 
 
-group   = 'org.manathome'
-version = '0.1.5'
-
 repositories {
         mavenLocal()
         mavenCentral()
         
         maven{url "http://gradle.artifactoryonline.com/gradle/libs/"}
         jcenter()        
-}
-
-buildscript {
-
-   repositories {
-        mavenLocal()
-        mavenCentral()
-        jcenter()
-    }
-    
-    dependencies {
-        classpath "org.asciidoctor:asciidoctor-gradle-plugin:1.5.2" 
-        classpath "org.flywaydb:flyway-gradle-plugin:3.2.1"										// db migration
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.3.1"
-    }
 }
 
 sourceCompatibility = "1.8"
@@ -75,6 +83,8 @@ dependencies {
    testCompile "com.h2database:h2:1.4.187"					 // dev database (usable in memory)
    
    compile fileTree(dir: 'lib', include: ['*.jar'])
+
+   gems 'rubygems:asciidoctor-diagram:1.2.1'
 }
 
 
@@ -151,7 +161,13 @@ asciidoctor {
     sourceDir    = new File("${projectDir}/src/docs")
     outputDir    = new File("${buildDir}/docs/asciidoc")
     logDocuments = true
-    backends 'html5'
+    // backends 'html5'
+    backends    'html5', 'pdf'
+    
+    
+    dependsOn jrubyPrepareGems
+    requires = ['asciidoctor-diagram']
+    gemPath = jrubyPrepareGems.outputDir
 } 
 
 

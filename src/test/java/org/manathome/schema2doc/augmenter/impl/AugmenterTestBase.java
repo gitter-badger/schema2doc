@@ -5,7 +5,7 @@ import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.renderer.impl.AsciidocRenderer;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.IScanner;
-import org.manathome.schema2doc.scanner.impl.GenericDbScanner;
+import org.manathome.schema2doc.scanner.ScannerFactory;
 import org.manathome.schema2doc.scanner.impl.H2ConnectTest;
 
 import java.io.File;
@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.file.Files;
-import java.sql.DriverManager;
 
 
 /** test base. */
@@ -29,7 +28,11 @@ public abstract class AugmenterTestBase {
 
 	
 	public void internalSetUp() throws Exception {
-		this.scanner = new GenericDbScanner(DriverManager.getConnection(H2ConnectTest.H2_TOTASK2_DB, "sa", ""));
+		
+		this.scanner  =  ScannerFactory
+				.getInstance()
+				.getScanner("Generic", H2ConnectTest.H2_DRIVER_NAME, H2ConnectTest.H2_TOTASK2_DB, "sa", "", true);
+		
 		File outFile = Files.createTempFile("schema2doc.junit.aug.testdoc.", ".adoc").toFile();
 		IRenderer renderer = new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(
 			    new FileOutputStream(outFile), "UTF-8"), true));

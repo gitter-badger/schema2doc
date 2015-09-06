@@ -35,9 +35,10 @@ public class DbTableDefaultData implements IDbTable {
 		return name;
 	}
 
+	/** table comment. */
 	@Override
 	public String getComment() {
-		return comment;
+		return this.comment;
 	}
 
 	@Override

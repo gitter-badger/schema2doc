@@ -96,6 +96,7 @@ public class Schema2Doc implements IAugmenterConfiguration {
 		renderer.endRenderDocumentation();
 
 		renderer.close();
+		scanner.close();
 		
 		this.renderer = null;
 		this.scanner = null;

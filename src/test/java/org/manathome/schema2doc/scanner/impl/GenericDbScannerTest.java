@@ -5,16 +5,17 @@ import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbTable;
-import org.manathome.schema2doc.scanner.IScanner;
 import org.manathome.schema2doc.scanner.ScannerException;
+import org.manathome.schema2doc.scanner.ScannerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.util.concurrent.ForkJoinPool;
+import java.util.stream.IntStream;
 
 import javax.sql.RowSet;
 
@@ -24,31 +25,30 @@ public class GenericDbScannerTest {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(GenericDbScannerTest.class);
 
-	Connection conn;
+	GenericDbScanner scanner;
 	
 	@Before
 	public void setUp() throws Exception {
-		Class.forName(H2ConnectTest.H2_DRIVER_NAME);
-		conn = DriverManager.getConnection(H2ConnectTest.H2_TOTASK2_DB, "sa", "");
-		assertTrue("connetion is open", !conn.isClosed());
+		
+		this.scanner  =  (GenericDbScanner) ScannerFactory
+				.getInstance()
+				.getScanner("Generic", H2ConnectTest.H2_DRIVER_NAME, H2ConnectTest.H2_TOTASK2_DB, "sa", "", true);
 	}
 	
 	@After
 	public void tearDown() throws Exception {
-		if (conn != null) {
-			conn.close();
+		if (scanner != null) {
+			// scanner.close();
 		}
 	}
 
 	@Test
 	public void testGenericDbScanner() {
-		IScanner scanner = new GenericDbScanner(conn);
 		assertNotNull(scanner);
 	}
 
 	@Test
 	public void testGetTables() {
-		IScanner scanner = new GenericDbScanner(conn);
 	    assertTrue(scanner.getTables().count() > 0);
 	    scanner.getTables().forEach(tbl ->
 	    		{
@@ -61,17 +61,65 @@ public class GenericDbScannerTest {
 	/** test parallel streams reading of database metaddata. */
 	@Test
 	public void testGetTablesWithParallelStream() {
-		IScanner scanner = new GenericDbScanner(conn, true);
-	    scanner.getTables().forEach(tbl ->
+		
+		GenericDbScanner parallelScanner  = (GenericDbScanner)  ScannerFactory
+				.getInstance()
+				.getScanner("Generic", H2ConnectTest.H2_DRIVER_NAME, H2ConnectTest.H2_TOTASK2_DB, "sa", "");
+		
+		parallelScanner.setUseParallelStream(true);
+		parallelScanner.getTables().forEach(tbl ->
 	    		{
 	    			LOG.debug("table: " + tbl.getName() + ", " + tbl.getComment());
 	    			assertNotNull(tbl.getName());
 	    		});
-	}	
+	}
+	
+	
+	/** test parallel streams.  */
+	@Test
+	public void testParallelStreamsDemoOnly() throws Exception {
+				
+		LOG.debug("test thread pool");
+		
+		// parallel (6 threads?) processing
+		ForkJoinPool forkJoinPool = new ForkJoinPool(6);
+		
+		LOG.debug("forkJoinPool parallel: " + forkJoinPool.getParallelism() + ", pool: " + 
+				  forkJoinPool.getPoolSize() + ", acive thread: " + 
+				  forkJoinPool.getActiveThreadCount());
+
+		
+		IntStream stream = forkJoinPool.submit(() ->
+			
+					  IntStream.range(1, 100)
+					 .parallel()
+					 .filter(i -> i <= 30)
+					 .sorted()
+					 .map(i -> { 
+						 LOG.debug("map i " + i); 
+						 try {
+							 Thread.sleep(15); 
+						 } catch (Exception ex) { }
+						 return i; })
+
+				).get();
+		
+		LOG.debug("forkJoinPool parallel: " + forkJoinPool.getParallelism() + ", pool: " + 
+											  forkJoinPool.getPoolSize() + ", acive thread: " + 
+											  forkJoinPool.getActiveThreadCount());
+
+		int sum = stream.sum();
+		
+		LOG.debug("forkJoinPool parallel: " + forkJoinPool.getParallelism() + ", pool: " + 
+				  forkJoinPool.getPoolSize() + ", acive thread: " + 
+				  forkJoinPool.getActiveThreadCount());
+		
+		LOG.debug("result=" + sum);
+		assertEquals("result sum", 465 , sum);
+	}		
 
 	@Test
 	public void testGetColumns() {
-		IScanner scanner = new GenericDbScanner(conn);
 	    assertTrue(scanner.getTables().count() > 0);
 	    scanner.getTables().forEach(tbl ->
 	    		{
@@ -90,7 +138,6 @@ public class GenericDbScannerTest {
 
 	@Test
 	public void testGetColumns_TT_PROJECT() {
-		IScanner scanner = new GenericDbScanner(conn);
 	    scanner.getTables()
 	           .filter(tbl -> tbl.getName().equalsIgnoreCase("TT_PROJECT"))
 	           .forEach(tbl -> // tt_project only
@@ -108,7 +155,6 @@ public class GenericDbScannerTest {
 	/** restrict output to one schema. */
 	@Test
 	public void testPublicSchemaFilter() {
-		IScanner scanner = new GenericDbScanner(conn);
 		scanner.setSchemaFilter(new String[] { "PUBLIC" });
 		scanner.getTables().forEach(tbl -> LOG.debug("TABLE: " + tbl.fqnName()));
 		scanner.getTables().forEach(tbl -> assertThat("only table from public", tbl.getSchema(), is("PUBLIC")));
@@ -117,7 +163,6 @@ public class GenericDbScannerTest {
 	/** PROJECT_ID is foreign key. */
 	@Test
 	public void testForeingKey_TT_TASK() {
-		IScanner scanner = new GenericDbScanner(conn);
 	    IDbTable tbl = scanner.getTables()
 	           .filter(t -> t.getName().equalsIgnoreCase("TT_TASK"))
 	           .findFirst()
@@ -133,31 +178,31 @@ public class GenericDbScannerTest {
 	    assertEquals("1 fk in project_id column", 1, col.getForeignKeyReferences().count());
 	}
 	
+	@Ignore
 	@Test(expected = ScannerException.class) 
 	public void testGetTablesOnClosedConnection() throws Exception {
-		IScanner scanner = new GenericDbScanner(conn);
-		conn.close();
+		scanner.close();
 	    assertTrue(scanner.getTables().count() == 0);
 	}
 	
 
+	@Ignore
 	@Test(expected = ScannerException.class) 
 	public void testGetColumnsOnClosedConnection() throws Exception {
-		IScanner scanner = new GenericDbScanner(conn);
 		IDbTable table   = scanner.getTables().findFirst().get();
-		conn.close();
+		scanner.close();
 	    assertTrue(scanner.getColumns(table).count() == 0);
 	}
 	
 	/** test actual select queries against connection. */
 	@Test
 	public void testGetQueryData() throws Exception {
-		IScanner scanner = new GenericDbScanner(conn);
 		IDbTable table   = scanner.getTables().filter(tbl -> tbl.getName().equalsIgnoreCase("TT_PROJECT")).findFirst().get();
 		
 		RowSet rs = scanner.getQueryData(table, "select * from TT_PROJECT");
-		conn.close();	// prove it! should be disconnected!
-		conn = null;
+		
+		scanner.close();
+		scanner = null;
 		
 		assertNotNull(rs);
 		assertTrue("has columns", rs.getMetaData().getColumnCount() >= 1);

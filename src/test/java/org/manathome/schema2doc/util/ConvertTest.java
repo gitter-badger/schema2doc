@@ -24,5 +24,6 @@ public class ConvertTest {
 		assertEquals("use x", "x", Convert.nvl(null, "x"));
 		assertEquals("use empty", "", Convert.nvl(null, ""));
 		assertEquals("use another one", "another one", Convert.nvl(null, "another one"));
+		assertEquals("null", null, (String) Convert.nvl(null, null));
 	}
 }

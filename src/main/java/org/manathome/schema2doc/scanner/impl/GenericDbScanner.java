@@ -42,7 +42,7 @@ public class GenericDbScanner implements IScanner {
 	private   Connection connection;
 	
 	/** use experimental parallel execution. */
-	protected boolean    useParallelStream = false;
+	private boolean    useParallelStream = false;
 
 	/** list of schema or null for all. */
 	private String[] schemaToDocument = null;
@@ -52,18 +52,12 @@ public class GenericDbScanner implements IScanner {
 	public GenericDbScanner(@NotNull final Connection connection) {
 		this.connection = Require.notNull(connection);
 	}
-	
-	/** ctor. */
-	public GenericDbScanner(@NotNull final Connection connection, boolean useParallelStream) {
-		this(connection);
-		this.useParallelStream = useParallelStream;
-		LOG.debug("create scanner " + (this.useParallelStream ? " in parallel mode" : ""));
-	}
+		
 	
 	@Override
 	@NotNull
 	public Stream<IDbTable> getTables() {
-		return this.useParallelStream ? getParallelTables() : getTablesInternal();
+		return this.isUseParallelStream() ? getParallelTables() : getTablesInternal();
 	}
 
 	/**
@@ -202,9 +196,8 @@ public class GenericDbScanner implements IScanner {
 		
 		try {
 			ResultSet rsTable = connection.getMetaData().getTables(null, null, "%", null);
-			
-			// Stream<IDbTable> tables = 
-			
+
+			// seralized reading of all tables..
 			List<IDbTable> tables = StreamSupport
 	                .stream(Spliterators.spliteratorUnknownSize(
                         	new ResultSetIterator<IDbTable>(
@@ -218,6 +211,7 @@ public class GenericDbScanner implements IScanner {
                 .collect(Collectors.toList())	// force loading before return!
                 ;
 			
+			// parallel (?) retrieval of metadata per table..
 			ForkJoinPool forkJoinPool = new ForkJoinPool(12);
 			
 			return forkJoinPool.submit(() ->
@@ -369,6 +363,24 @@ public class GenericDbScanner implements IScanner {
 			LOG.error("error retrieving data für table " + table.fqnName() + ": " + ex.getMessage(), ex);
 			throw new ScannerException("error retrieving data from " + table.fqnName(), ex);
 		}
+	}
+
+	public boolean isUseParallelStream() {
+		return useParallelStream;
+	}
+
+	public void setUseParallelStream(boolean useParallelStream) {
+		this.useParallelStream = useParallelStream;
+	}
+
+
+	@Override
+	public void close() throws Exception {
+		if (this.connection != null && !this.connection.isClosed()) {
+			LOG.debug("closing db connection in scanner");
+			this.connection.close();
+		}
+		this.connection = null;		
 	}
 
 }

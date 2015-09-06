@@ -14,7 +14,8 @@ import java.sql.Connection;
 public class OracleScanner extends GenericDbScanner {
 	
 	public OracleScanner(Connection con) {
-		super(con, true);
+		super(con);
+		this.setUseParallelStream(true);
 	}
 	
 }

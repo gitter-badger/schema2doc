@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.renderer.impl.AsciidocRenderer;
 import org.manathome.schema2doc.scanner.IScanner;
-import org.manathome.schema2doc.scanner.impl.GenericDbScanner;
+import org.manathome.schema2doc.scanner.ScannerFactory;
 import org.manathome.schema2doc.scanner.impl.H2ConnectTest;
 import org.manathome.schema2doc.scanner.impl.MockScanner;
 import org.slf4j.Logger;
@@ -20,7 +20,6 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.DriverManager;
 
 
 /** test whole run. */
@@ -32,8 +31,8 @@ public class Schema2DocTest {
 
 	@Before
 	public void setUp() throws Exception {
-		Class.forName(H2ConnectTest.H2_DRIVER_NAME);
-		this.scanner = new GenericDbScanner(DriverManager.getConnection(H2ConnectTest.H2_TOTASK2_DB, "sa", ""));
+		this.scanner = ScannerFactory.getInstance()
+				.getScanner("Generic", H2ConnectTest.H2_DRIVER_NAME, H2ConnectTest.H2_TOTASK2_DB, "sa", "");
 		this.scanner.setSchemaFilter(new String[] {"PUBLIC"});
 	}
 
@@ -76,8 +75,9 @@ public class Schema2DocTest {
 	@Test
 	public void testH2Schema2DocGenAsciidocProcess() throws Exception {
 
-		Class.forName(H2ConnectTest.H2_DRIVER_NAME);
-		this.scanner = new GenericDbScanner(DriverManager.getConnection(H2ConnectTest.H2_SCHEMA2DOC_DB, "sa", ""));
+		this.scanner = ScannerFactory.getInstance()
+				.getScanner("Generic", H2ConnectTest.H2_DRIVER_NAME, H2ConnectTest.H2_SCHEMA2DOC_DB, "sa", "");
+		
 		this.scanner.setSchemaFilter(new String[] {"PUBLIC"});
 		
 		File outFile = new File("src/docs/examples/schema2doc.schema2doc.db.h2.example.asciidoc");

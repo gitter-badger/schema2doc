@@ -1,5 +1,5 @@
 = schema2doc database documentation
-:Date:    Sat Sep 05 01:22:38 CEST 2015
+:Date:    Sat Sep 05 23:56:29 CEST 2015
 :numbered:
 :icons:     font
 :toc:       left
@@ -29,6 +29,18 @@ at the header.
 [[SCHEMA2DOC.TEST.H2.DB.PUBLIC.DUMMY_USER]]
 ==== Table *DUMMY_USER*
 
+
+[plantuml, diagram-classes, png]     
+....
+class BlockProcessor
+class DiagramBlock
+class DitaaBlock
+class PlantUmlBlock
+
+BlockProcessor <|-- DiagramBlock
+DiagramBlock <|-- DitaaBlock
+DiagramBlock <|-- PlantUmlBlock
+....
 
 |===
 |Column | PK | Type | Comment | Size | Constraints
@@ -221,4 +233,4 @@ Grants:
 
 Referenced by: 
 
-document generated at Sat Sep 05 01:22:39 CEST 2015
+document generated at Sat Sep 05 23:56:29 CEST 2015

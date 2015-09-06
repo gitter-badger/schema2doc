@@ -25,10 +25,10 @@ public class DbColumnDefaultData implements IDbColumn {
 	public DbColumnDefaultData(
 			@NotNull final String name, 
 			@NotNull final String typeName, 
-			String comment, 
-			int    size, 
-			int    precision,
-			String  nullableDesc) {
+			final String comment, 
+			final int    size, 
+			final int    precision,
+			final String  nullableDesc) {
 		this.name = Require.notNull(name, "name required");
 		this.typeName = Require.notNull(typeName , "typeName required");
 		this.comment = comment;
@@ -70,7 +70,7 @@ public class DbColumnDefaultData implements IDbColumn {
 	/** optional comment. */
 	@Override
 	public String getComment() {
-		return comment;
+		return this.comment;
 	}
 
 	@Override

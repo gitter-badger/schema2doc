@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.renderer.impl.AsciidocRenderer;
 import org.manathome.schema2doc.scanner.IScanner;
-import org.manathome.schema2doc.scanner.impl.GenericDbScanner;
+import org.manathome.schema2doc.scanner.ScannerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.sql.DriverManager;
 
 /** test with larger oracle db. 
  * 
@@ -39,12 +38,13 @@ public class Schema2DocOracleSample {
 	@Test
 	public void testEoxe() throws Exception {
 
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			this.scanner = new GenericDbScanner(DriverManager.getConnection(
+			this.scanner = ScannerFactory.getInstance().getScanner(
+					"Oracle",
+					"oracle.jdbc.driver.OracleDriver", 
 					"jdbc:oracle:thin:@ebseoxdpc01:1521:eoxe", 
 					"****", 
-					"**"));
-			
+					"**");
+					
 			this.scanner.setSchemaFilter(new String[] {"EOX"});
 			
 			File outFile = new File("src/docs/examples/schema2doc.eoxe.db.oracle.example.asciidoc");

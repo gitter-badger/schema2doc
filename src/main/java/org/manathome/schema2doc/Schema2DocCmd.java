@@ -13,9 +13,7 @@ import org.manathome.schema2doc.renderer.impl.AsciidocRenderer;
 import org.manathome.schema2doc.renderer.impl.LoggingAdapterRenderer;
 import org.manathome.schema2doc.renderer.impl.PlaintextRenderer;
 import org.manathome.schema2doc.scanner.IScanner;
-import org.manathome.schema2doc.scanner.impl.GenericDbScanner;
-import org.manathome.schema2doc.scanner.impl.MockScanner;
-import org.manathome.schema2doc.scanner.impl.OracleScanner;
+import org.manathome.schema2doc.scanner.ScannerFactory;
 import org.manathome.schema2doc.util.Ensure;
 import org.manathome.schema2doc.util.NotNull;
 import org.manathome.schema2doc.util.Require;
@@ -26,8 +24,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
 
 /**
  * basic command line interface for schema2doc tool.
@@ -207,35 +203,13 @@ public class Schema2DocCmd {
 			         String argSchema[]
 			) throws Exception {
 
-		LOG.debug("create scanner from commandline arguments..");
+		final IScanner scanner =  ScannerFactory
+				.getInstance()
+				.getScanner(argScanner, argDriverClass, argJdbcUrl, argUser, argPw, isVerbose);
 
-		Connection conn    = null;
-		IScanner   scanner = null;
-
-		try {
-			if (!"Mock".equalsIgnoreCase(argScanner)) {
-				Class<?> clazz = Class.forName(argDriverClass); // load database
-																// driver..
-				LOG.debug("using jdbc driver: " + clazz.getName());
-				LOG.debug("connecting to " + argJdbcUrl + " as " + argUser + " "
-						+ (argPw == null ? "without pw" : " with pw"));
-
-				conn    = DriverManager.getConnection(argJdbcUrl, argUser, argPw);
-				scanner = "Oracle".equalsIgnoreCase(argScanner) ? 
-												  new OracleScanner(conn) 
-												: new GenericDbScanner(conn);
-			} else {
-				scanner = new MockScanner();
-			}
+		scanner.setSchemaFilter(argSchema);
 			
-			scanner.setSchemaFilter(argSchema);
-			
-			LOG.debug("using scanner: " + scanner.getClass().getName());
-			return Ensure.notNull(scanner, "scanner");
-		} catch (Exception ex) {
-			LOG.error("error creating db scanner", ex);
-			throw ex;
-		}
+		return scanner;
 	}
 
 	/** define command line options with apache commons-cli. 

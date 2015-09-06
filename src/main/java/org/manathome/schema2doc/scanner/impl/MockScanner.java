@@ -82,4 +82,9 @@ public class MockScanner implements IScanner {
 	public CachedRowSet getQueryData(IDbTable table, String sqlSelect) {
 		return null;
 	}
+
+	@Override
+	public void close() throws Exception {
+		// noop in mock.		
+	}
 }

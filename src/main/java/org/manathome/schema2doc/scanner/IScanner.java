@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import javax.sql.rowset.CachedRowSet;
 
 /** interface for database data retrievers. */
-public interface IScanner {
+public interface IScanner extends AutoCloseable {
 
 	/** gets a list of tables. */
 	@NotNull Stream<IDbTable> getTables();

@@ -9,3 +9,5 @@ schemadocumentation.*.adoc
 build.xml
 manifest.mf
 lib/ojdbc7.jar
+src/docs/examples/*.png
+src/docs/examples/*.png.cache

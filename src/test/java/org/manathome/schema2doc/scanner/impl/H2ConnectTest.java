@@ -24,6 +24,7 @@ public class H2ConnectTest {
 	public void testOpenConnection() throws Exception {
 		Class.forName(H2_DRIVER_NAME);
 		Connection conn = DriverManager.getConnection(H2_TOTASK2_DB, "sa", "");
+			
 		assertTrue("connection is open", !conn.isClosed());
 		conn.close();
 		assertTrue("connection is closed", conn.isClosed());
