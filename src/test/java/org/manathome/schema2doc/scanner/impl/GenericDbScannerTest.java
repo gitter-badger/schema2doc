@@ -123,7 +123,7 @@ public class GenericDbScannerTest {
 	    assertTrue(scanner.getTables().count() > 0);
 	    scanner.getTables().forEach(tbl ->
 	    		{
-	    			assertTrue("has columns", scanner.getColumns(tbl).count() > 0);
+	    			assertTrue("has columns", scanner.getColumns(tbl).size() > 0);
 	    			scanner.getColumns(tbl).forEach(clmn ->
 	    			{
 	    				assertNotNull(clmn);
@@ -171,6 +171,7 @@ public class GenericDbScannerTest {
 	    assertNotNull(tbl);
 	    
 	    IDbColumn col = scanner.getColumns(tbl)
+	    					   .stream()
 	    			           .filter(clmn -> clmn.getName().equals("PROJECT_ID"))
 	    		               .findFirst()
 	    		               .get();
@@ -191,7 +192,7 @@ public class GenericDbScannerTest {
 	public void testGetColumnsOnClosedConnection() throws Exception {
 		IDbTable table   = scanner.getTables().findFirst().get();
 		scanner.close();
-	    assertTrue(scanner.getColumns(table).count() == 0);
+	    assertTrue(scanner.getColumns(table).size() == 0);
 	}
 	
 	/** test actual select queries against connection. */

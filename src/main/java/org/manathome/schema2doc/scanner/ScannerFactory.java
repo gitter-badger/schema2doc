@@ -40,7 +40,9 @@ public class ScannerFactory {
 			                            String jdbcUrl, String user, String pw,
 			                            boolean isVerbose) {
 
-		IScanner scanner = null;		
+		Connection conn  = null;
+		IScanner scanner = null;
+		
 		try {
 		
 			if (!"Mock".equalsIgnoreCase(Require.notNull(scannerName, "scannerName"))) {
@@ -62,15 +64,15 @@ public class ScannerFactory {
 					 connProperties.put ("user", 			user);
 					 connProperties.put ("password", 		pw);
 					
-					 Connection conn = DriverManager.getConnection(jdbcUrl, connProperties);
+					 conn = DriverManager.getConnection(jdbcUrl, connProperties);
 					 conn.setReadOnly(true);
 					 
 					 scanner = new OracleScanner(conn); 					
 				} else {		
 			
-					Connection conn = DriverManager.getConnection(jdbcUrl, user, pw);
+					conn = DriverManager.getConnection(jdbcUrl, user, pw);
 					conn.setReadOnly(true);
-					scanner = new GenericDbScanner(conn);
+					scanner = new GenericDbScanner(conn);					
 				}
 			} else {
 				scanner = new MockScanner();
@@ -82,8 +84,15 @@ public class ScannerFactory {
 			
 		} catch (final Exception ex) {
 			LOG.error("could not create scanner: " + ex.getMessage(), ex);
-			
-			try {
+
+			try {				
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (Exception nestedex) {
+				// nothing to do here..
+			}			
+			try {				
 				if (scanner != null) {
 					scanner.close();
 				}

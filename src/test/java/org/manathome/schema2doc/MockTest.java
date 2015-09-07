@@ -67,7 +67,7 @@ public class MockTest {
 		       
 		assertTrue("column person_id", 
 					scanner.getTables().anyMatch(tbl -> 
-						scanner.getColumns(tbl).anyMatch(clmn -> clmn.getName().equals("person_id"))
+						scanner.getColumns(tbl).stream().anyMatch(clmn -> clmn.getName().equals("person_id"))
 					)
 				  );
 	}

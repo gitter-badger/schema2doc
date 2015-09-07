@@ -4,6 +4,8 @@ import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.IScanner;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -20,7 +22,7 @@ import javax.sql.rowset.CachedRowSet;
 public class MockScanner implements IScanner {
 	
 	public static final Set<IDbTable>  TABLES = new TreeSet<>();
-	public static final Map<IDbTable,  Set<IDbColumn>> COLUMNS = new TreeMap<>();
+	public static final Map<IDbTable,  List<IDbColumn>> COLUMNS = new TreeMap<>();
 	
 	public MockScanner() {
 		DbTableDefaultData personTable   = new DbTableDefaultData(null, "mock", "person" , "a person");
@@ -35,14 +37,14 @@ public class MockScanner implements IScanner {
 		TABLES.add(personTable);
 		TABLES.add(addressTable);
 		
-		Set<IDbColumn> tcolumns = new TreeSet<>();
+		List<IDbColumn> tcolumns = new ArrayList<>();
 		DbColumnDefaultData column = new DbColumnDefaultData("ID" , "Number", "my key", 22, 0, "NO");
 		column.setPrimaryKey(1);
 		tcolumns.add(column);
 		tcolumns.add(new DbColumnDefaultData("Name" , "Varchar2", "name of person", 80, 0, null));
 		COLUMNS.put(personTable, tcolumns);
 
-		tcolumns = new TreeSet<>();
+		tcolumns = new ArrayList<>();
 		column = new DbColumnDefaultData("ID" , "Number", "address-id", 22, 0, "NO");
 		column.setPrimaryKey(1);
 		tcolumns.add(column);
@@ -68,8 +70,8 @@ public class MockScanner implements IScanner {
 	 * @see org.manathome.schema2doc.scanner.impl.IScanner#getColumns(org.manathome.schema2doc.scanner.IDbTable)
 	 */
 	@Override
-	public Stream<IDbColumn> getColumns(final IDbTable table) {
-		return COLUMNS.get(table).stream();
+	public List<IDbColumn> getColumns(final IDbTable table) {
+		return COLUMNS.get(table);
 	}
 
 	@Override

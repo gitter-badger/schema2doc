@@ -33,6 +33,9 @@ public class AsciidocRenderer implements IRenderer {
     
     /** out stream to render to. */
     private PrintWriter out = null;
+    
+    /** add plantuml diagram to table output. */
+    private boolean withDiagram = true;
 
     /** .ctor. */
 	public AsciidocRenderer(@NotNull final PrintWriter out) {
@@ -76,11 +79,34 @@ public class AsciidocRenderer implements IRenderer {
 			out.print(Convert.nvl(tableDocAugmenter.getData(), ""));
 		}
 		
+		if (withDiagram) {
+			renderDiagram(table);
+		}
+		
 		// begin table columns..
 		out.println("|===");
 		out.println("|Column | PK | Type | Comment | Size | Constraints");
 		out.println(""); // needed to get header formatting for above line.
 		out.flush();
+	}
+
+	/** render diagram inline for table. */
+	private void renderDiagram(@NotNull final IDbTable table) {
+		out.println("");
+		out.println("[plantuml, images/" + Require.notNull(table, "table").fqnName() + ".diagram, png]");     
+		out.println("....");
+
+		out.println("object " + table.getName() + " {");
+		table.getColumns()
+			 .filter(clmn -> clmn.isPrimaryKey())
+			 .forEach(clmn -> out.println(" + " + clmn.getName()));
+		table.getColumns()
+		 .filter(clmn -> clmn.getForeignKeyReferences().anyMatch(c -> true))
+		 .forEach(clmn -> out.println(" - " + clmn.getName()));
+		out.println("}");
+
+		out.println("....");
+		out.println("");
 	}
 
 	/* (non-Javadoc)

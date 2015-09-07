@@ -3,6 +3,7 @@ package org.manathome.schema2doc.scanner;
 import org.manathome.schema2doc.util.Convert;
 import org.manathome.schema2doc.util.NotNull;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 /** meta data for database table. */
@@ -38,4 +39,8 @@ public interface IDbTable extends Comparable<IDbTable>{
 	
 	/** list with incoming references (other db constructs referencing this table). */
 	@NotNull public Stream<IReference> getReferrer();
+
+	public void setColumns(List<IDbColumn> columns);
+	
+	@NotNull public Stream<IDbColumn> getColumns();
 }

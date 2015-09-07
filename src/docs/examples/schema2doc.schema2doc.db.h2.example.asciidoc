@@ -1,5 +1,5 @@
 = schema2doc database documentation
-:Date:    Sat Sep 05 23:56:29 CEST 2015
+:Date:    Tue Sep 08 00:49:25 CEST 2015
 :numbered:
 :icons:     font
 :toc:       left
@@ -30,16 +30,12 @@ at the header.
 ==== Table *DUMMY_USER*
 
 
-[plantuml, diagram-classes, png]     
-....
-class BlockProcessor
-class DiagramBlock
-class DitaaBlock
-class PlantUmlBlock
 
-BlockProcessor <|-- DiagramBlock
-DiagramBlock <|-- DitaaBlock
-DiagramBlock <|-- PlantUmlBlock
+[plantuml, images/SCHEMA2DOC.TEST.H2.DB.PUBLIC.DUMMY_USER.diagram, png]
+....
+object DUMMY_USER {
+ + ID
+}
 ....
 
 |===
@@ -89,6 +85,14 @@ Referenced by:
 ==== Table *S2D_TABLE1*
 some table1 comment
 
+
+[plantuml, images/SCHEMA2DOC.TEST.H2.DB.PUBLIC.S2D_TABLE1.diagram, png]
+....
+object S2D_TABLE1 {
+ + ID
+}
+....
+
 |===
 |Column | PK | Type | Comment | Size | Constraints
 
@@ -114,6 +118,15 @@ Referenced by: SCHEMA2DOC.TEST.H2.DB.PUBLIC.S2D_TABLE2
 [[SCHEMA2DOC.TEST.H2.DB.PUBLIC.S2D_TABLE2]]
 ==== Table *S2D_TABLE2*
 a s2d_table2 comment
+
+
+[plantuml, images/SCHEMA2DOC.TEST.H2.DB.PUBLIC.S2D_TABLE2.diagram, png]
+....
+object S2D_TABLE2 {
+ + ID
+ - TABLE1_ID
+}
+....
 
 |===
 |Column | PK | Type | Comment | Size | Constraints
@@ -146,6 +159,14 @@ Referenced by:
 [[SCHEMA2DOC.TEST.H2.DB.PUBLIC.schema_version]]
 ==== Table *schema_version*
 
+
+
+[plantuml, images/SCHEMA2DOC.TEST.H2.DB.PUBLIC.schema_version.diagram, png]
+....
+object schema_version {
+ + version
+}
+....
 
 |===
 |Column | PK | Type | Comment | Size | Constraints
@@ -233,4 +254,4 @@ Grants:
 
 Referenced by: 
 
-document generated at Sat Sep 05 23:56:29 CEST 2015
+document generated at Tue Sep 08 00:49:25 CEST 2015

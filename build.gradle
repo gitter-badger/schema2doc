@@ -33,7 +33,7 @@ plugins {
 
 
 group   = 'org.manathome'
-version = '0.1.5'
+version = '0.1.7'
 
 // development
 apply plugin: "java"
@@ -247,7 +247,7 @@ bintray {
         publicDownloadNumbers = false
         
         version {
-                name = '0.1.5'					// adapt
+                name = '0.1.7'					// adapt
                 desc = 'under development'
         }
     }

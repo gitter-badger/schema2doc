@@ -27,7 +27,7 @@ public class MockScannerTest {
 	    IDbTable personTable = scanner.getTables().filter(tbl -> tbl.getName().equalsIgnoreCase("person")).findFirst().get();
 		assertEquals("2 columns in person table expected", 
 				2, 
-				scanner.getColumns(personTable).count()
+				scanner.getColumns(personTable).stream().count()
 						);
 	}
 

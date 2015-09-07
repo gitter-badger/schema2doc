@@ -71,6 +71,9 @@ public class Schema2Doc implements IAugmenterConfiguration {
 		String currentSchema = null;
 
 		for (IDbTable table : tables) {
+			
+			table.setColumns(scanner.getColumns(table));
+			
 			if (isGroupedByCatalogAndSchema() && currentCatalog != table.getCatalog()) {
 				currentCatalog = table.getCatalog();
 				currentSchema = null;
@@ -86,7 +89,7 @@ public class Schema2Doc implements IAugmenterConfiguration {
 			
 			renderer.beginRenderTable(table, tableDocAugmenter);
 			tableCnt++;
-			scanner.getColumns(table).forEach(column -> renderer.renderColumn(column));
+			table.getColumns().forEach(column -> renderer.renderColumn(column));
 			
 			ITableDataAugmenter tableDataAugmenter = new TableDataAugmenter();
 			tableDataAugmenter.loadConfiguration(this, table, scanner);

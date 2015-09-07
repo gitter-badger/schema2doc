@@ -47,6 +47,7 @@ public class GenericDbScanner implements IScanner {
 	/** list of schema or null for all. */
 	private String[] schemaToDocument = null;
 
+	private List<IDbTable> cachedTables = null;
 	
 	/** ctor. */
 	public GenericDbScanner(@NotNull final Connection connection) {
@@ -57,7 +58,11 @@ public class GenericDbScanner implements IScanner {
 	@Override
 	@NotNull
 	public Stream<IDbTable> getTables() {
-		return this.isUseParallelStream() ? getParallelTables() : getTablesInternal();
+		
+		if (this.cachedTables == null) {
+			this.cachedTables = this.isUseParallelStream() ? getParallelTables() : getTablesInternal();
+		} 
+		return this.cachedTables.stream();
 	}
 
 	/**
@@ -67,7 +72,7 @@ public class GenericDbScanner implements IScanner {
 	 * @return list of tables in db.
 	 */
 	@NotNull
-	private Stream<IDbTable> getTablesInternal() {
+	private List<IDbTable> getTablesInternal() {
 		LOG.debug("retrieve tables");
 		
 		try {
@@ -119,7 +124,7 @@ public class GenericDbScanner implements IScanner {
 			
 			LOG.debug("scanning tables done.");
 
-			return tables.stream();
+			return tables;
 		} catch (Exception ex) {
 			throw new ScannerException("error retrieving tables " + ex.getMessage(), ex);
 		}
@@ -191,14 +196,14 @@ public class GenericDbScanner implements IScanner {
 	 * @exception ScannerException
 	 */
 	@NotNull
-	public Stream<IDbTable> getParallelTables() {
+	public List<IDbTable> getParallelTables() {
 		LOG.debug("retrieve tables parallel..");
 		
 		try {
 			ResultSet rsTable = connection.getMetaData().getTables(null, null, "%", null);
 
-			// seralized reading of all tables..
-			List<IDbTable> tables = StreamSupport
+			// serialized reading of all tables..
+			Stream<IDbTable> tables = StreamSupport
 	                .stream(Spliterators.spliteratorUnknownSize(
                         	new ResultSetIterator<IDbTable>(
                         			rsTable, 
@@ -208,17 +213,19 @@ public class GenericDbScanner implements IScanner {
                 		 schemaToDocument == null ||
                 		 Arrays.stream(schemaToDocument).anyMatch(s -> s.equalsIgnoreCase(tbl.getSchema()))
                 	   )
-                .collect(Collectors.toList())	// force loading before return!
+             //   .collect(Collectors.toList())	// force loading before return!
                 ;
 			
 			// parallel (?) retrieval of metadata per table..
 			ForkJoinPool forkJoinPool = new ForkJoinPool(12);
 			
 			return forkJoinPool.submit(() ->
-					tables.parallelStream()
+					tables.parallel()
 	                .map(tbl -> this.mapWithPrivilege(tbl))
 	                .map(tbl -> this.mapWithKey(tbl))
-					).get();
+					)
+					.get()
+					.collect(Collectors.toList());
 			
 		
 		} catch (Exception ex) {
@@ -226,6 +233,7 @@ public class GenericDbScanner implements IScanner {
 			throw new ScannerException("error retrieving tables " + ex.getMessage(), ex);
 		}
 	}
+	
 	
 
 	/**
@@ -236,7 +244,7 @@ public class GenericDbScanner implements IScanner {
 	 * @return all columns
 	 */
 	@Override
-	@NotNull public Stream<IDbColumn> getColumns(@NotNull final IDbTable table) {
+	@NotNull public List<IDbColumn> getColumns(@NotNull final IDbTable table) {
 		LOG.debug("retrieve columns for " + table);
 		try {
 			List<IDbColumn> columns = new ArrayList<>();
@@ -323,7 +331,7 @@ public class GenericDbScanner implements IScanner {
 	        	LOG.error("foreign key information not processed for table " + table.getName(), ex);
 	        }		    
 		    
-		    return columns.stream();
+		    return columns;
 		    
 		} catch (Exception ex) {
 			throw new ScannerException("error retrieving colums for " + table + ", " + ex.getMessage(), ex);

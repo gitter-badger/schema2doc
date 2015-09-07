@@ -21,6 +21,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -29,14 +30,23 @@ public class AsciidocRendererTest {
 	
     private static final Logger LOG = LoggerFactory.getLogger(AsciidocRendererTest.class);
 
-
 	private IRenderer renderer = null;
 	private ByteArrayOutputStream bout = null;
+	
+	private IDbTable  table   = null;
+	private IDbColumn column  = null;
 	
 	@Before
 	public void setUp() throws Exception {
 		bout = new ByteArrayOutputStream();
 		renderer = new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(bout, "UTF-8"), true));
+		
+		table = new DbTableDefaultData(null, null, "dummyTableName", "dummy-comment");
+		column = new DbColumnDefaultData("dummyColumn", "dummyType", "dummy-comment", 0, 0, null);
+
+		List<IDbColumn> cl = new ArrayList<>();
+		cl.add(column);
+		table.setColumns(cl);
 	}
 
 	@Test
@@ -47,7 +57,6 @@ public class AsciidocRendererTest {
 
 	@Test
 	public void testRenderTable() throws Exception {
-		IDbTable table = new DbTableDefaultData(null, null, "dummyTableName", "dummy-comment");
 		renderer.beginRenderTable(table, null);
 		renderer.endRenderTable(table, null);
 		String result = bout.toString("UTF-8");
@@ -72,7 +81,6 @@ public class AsciidocRendererTest {
 
 	@Test
 	public void testRenderColumn() throws Exception {
-		IDbColumn column = new DbColumnDefaultData("dummyColumn", "dummyType", "dummy-comment", 0, 0, null);
 		renderer.renderColumn(column);
 		String result = bout.toString("UTF-8");
 		
@@ -86,7 +94,7 @@ public class AsciidocRendererTest {
 		File outFile = File.createTempFile("asciidoc.renderer.test.out-", ".adoc");
 		try (AsciidocRenderer renderer = new AsciidocRenderer(new PrintWriter(new OutputStreamWriter(
 					    new FileOutputStream(outFile), "UTF-8"), true))) {
-			IDbTable table = new DbTableDefaultData(null, null, "dummyTableName", "dummy-comment");
+						
 			renderer.beginRenderTable(table, null);
 			renderer.endRenderTable(table, null);
 			

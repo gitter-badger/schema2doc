@@ -1,5 +1,6 @@
 package org.manathome.schema2doc.scanner.impl;
 
+import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbPrivilege;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.IReference;
@@ -22,6 +23,7 @@ public class DbTableDefaultData implements IDbTable {
 	private String comment;
 	private List<IDbPrivilege> privileges = new ArrayList<>();
 	private Set<IReference>    referrer   = new TreeSet<IReference>();
+	private List<IDbColumn> columns;
 
 	public DbTableDefaultData(final String catalog, final String schema, @NotNull final String name, final String comment) {
 		this.catalog = catalog;
@@ -80,5 +82,16 @@ public class DbTableDefaultData implements IDbTable {
 	@Override
 	@NotNull public Stream<IReference> getReferrer() {
 		return referrer.stream();
+	}
+
+	@Override
+	public void setColumns(List<IDbColumn> columns) {
+		this.columns = columns;
+		
+	}
+
+	@Override
+	public Stream<IDbColumn> getColumns() {
+		return this.columns.stream();
 	}	
 }

@@ -1,5 +1,5 @@
 = schema2doc database documentation
-:Date:    Sat Sep 05 23:56:29 CEST 2015
+:Date:    Tue Sep 08 00:49:25 CEST 2015
 :numbered:
 :icons:     font
 :toc:       left
@@ -30,6 +30,14 @@ at the header.
 ==== Table *REVINFO*
 
 
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.REVINFO.diagram, png]
+....
+object REVINFO {
+ + REV
+}
+....
+
 |===
 |Column | PK | Type | Comment | Size | Constraints
 
@@ -56,6 +64,14 @@ Referenced by: TOTASK2.QA.DB.PUBLIC.TT_PROJECT_HISTORY, TOTASK2.QA.DB.PUBLIC.TT_
 ==== Table *TT_PROJECT*
 
 
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_PROJECT.diagram, png]
+....
+object TT_PROJECT {
+ + ID
+}
+....
+
 |===
 |Column | PK | Type | Comment | Size | Constraints
 
@@ -81,6 +97,16 @@ Referenced by: TOTASK2.QA.DB.PUBLIC.TT_PROJECT_PROJECT_LEADS, TOTASK2.QA.DB.PUBL
 [[TOTASK2.QA.DB.PUBLIC.TT_PROJECT_HISTORY]]
 ==== Table *TT_PROJECT_HISTORY*
 
+
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_PROJECT_HISTORY.diagram, png]
+....
+object TT_PROJECT_HISTORY {
+ + ID
+ + REV
+ - REV
+}
+....
 
 |===
 |Column | PK | Type | Comment | Size | Constraints
@@ -121,6 +147,17 @@ Referenced by:
 ==== Table *TT_PROJECT_PROJECT_LEADS*
 
 
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_PROJECT_PROJECT_LEADS.diagram, png]
+....
+object TT_PROJECT_PROJECT_LEADS {
+ + TT_PROJECT_ID
+ + PROJECT_LEADS_ID
+ - TT_PROJECT_ID
+ - PROJECT_LEADS_ID
+}
+....
+
 |===
 |Column | PK | Type | Comment | Size | Constraints
 
@@ -144,6 +181,17 @@ Referenced by:
 [[TOTASK2.QA.DB.PUBLIC.TT_PROJECT_PROJECT_LEADS_AUD]]
 ==== Table *TT_PROJECT_PROJECT_LEADS_AUD*
 
+
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_PROJECT_PROJECT_LEADS_AUD.diagram, png]
+....
+object TT_PROJECT_PROJECT_LEADS_AUD {
+ + REV
+ + TT_PROJECT_ID
+ + PROJECT_LEADS_ID
+ - REV
+}
+....
 
 |===
 |Column | PK | Type | Comment | Size | Constraints
@@ -192,6 +240,15 @@ should be integrated to schema2doc generated stuff.
 
 
 
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_TASK.diagram, png]
+....
+object TT_TASK {
+ + ID
+ - PROJECT_ID
+}
+....
+
 |===
 |Column | PK | Type | Comment | Size | Constraints
 
@@ -232,6 +289,16 @@ Referenced by: TOTASK2.QA.DB.PUBLIC.TT_TASK_ASSIGNMENT, TOTASK2.QA.DB.PUBLIC.TT_
 [[TOTASK2.QA.DB.PUBLIC.TT_TASK_ASSIGNMENT]]
 ==== Table *TT_TASK_ASSIGNMENT*
 
+
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_TASK_ASSIGNMENT.diagram, png]
+....
+object TT_TASK_ASSIGNMENT {
+ + ID
+ - TASK_ID
+ - USER_ID
+}
+....
 
 |===
 |Column | PK | Type | Comment | Size | Constraints
@@ -277,6 +344,16 @@ Referenced by:
 [[TOTASK2.QA.DB.PUBLIC.TT_TASK_ASSIGNMENT_HISTORY]]
 ==== Table *TT_TASK_ASSIGNMENT_HISTORY*
 
+
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_TASK_ASSIGNMENT_HISTORY.diagram, png]
+....
+object TT_TASK_ASSIGNMENT_HISTORY {
+ + ID
+ + REV
+ - REV
+}
+....
 
 |===
 |Column | PK | Type | Comment | Size | Constraints
@@ -338,6 +415,16 @@ Referenced by:
 ==== Table *TT_TASK_HISTORY*
 
 
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_TASK_HISTORY.diagram, png]
+....
+object TT_TASK_HISTORY {
+ + ID
+ + REV
+ - REV
+}
+....
+
 |===
 |Column | PK | Type | Comment | Size | Constraints
 
@@ -383,6 +470,14 @@ Referenced by:
 [[TOTASK2.QA.DB.PUBLIC.TT_USER]]
 ==== Table *TT_USER*
 
+
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_USER.diagram, png]
+....
+object TT_USER {
+ + ID
+}
+....
 
 |===
 |Column | PK | Type | Comment | Size | Constraints
@@ -444,6 +539,16 @@ Referenced by: TOTASK2.QA.DB.PUBLIC.TT_PROJECT_PROJECT_LEADS, TOTASK2.QA.DB.PUBL
 [[TOTASK2.QA.DB.PUBLIC.TT_USER_HISTORY]]
 ==== Table *TT_USER_HISTORY*
 
+
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_USER_HISTORY.diagram, png]
+....
+object TT_USER_HISTORY {
+ + ID
+ + REV
+ - REV
+}
+....
 
 |===
 |Column | PK | Type | Comment | Size | Constraints
@@ -512,6 +617,16 @@ Referenced by:
 ==== Table *TT_WORKENTRY*
 
 
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.TT_WORKENTRY.diagram, png]
+....
+object TT_WORKENTRY {
+ + ID
+ - TASK_ID
+ - USER_ID
+}
+....
+
 |===
 |Column | PK | Type | Comment | Size | Constraints
 
@@ -563,6 +678,14 @@ Referenced by:
 [[TOTASK2.QA.DB.PUBLIC.schema_version]]
 ==== Table *schema_version*
 
+
+
+[plantuml, images/TOTASK2.QA.DB.PUBLIC.schema_version.diagram, png]
+....
+object schema_version {
+ + version
+}
+....
 
 |===
 |Column | PK | Type | Comment | Size | Constraints
@@ -650,4 +773,4 @@ Grants:
 
 Referenced by: 
 
-document generated at Sat Sep 05 23:56:29 CEST 2015
+document generated at Tue Sep 08 00:49:25 CEST 2015
