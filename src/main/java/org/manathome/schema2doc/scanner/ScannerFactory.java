@@ -10,9 +10,11 @@ import org.manathome.schema2doc.util.Require;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.Properties;
+
+import javax.sql.DataSource;
+
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * creates a jdbc connection an its suitable scanner.
@@ -40,8 +42,8 @@ public class ScannerFactory {
 			                            String jdbcUrl, String user, String pw,
 			                            boolean isVerbose) {
 
-		Connection conn  = null;
 		IScanner scanner = null;
+		DataSource dataSource = null;
 		
 		try {
 		
@@ -58,21 +60,18 @@ public class ScannerFactory {
 							);
 				}	
 				
+				dataSource = new HikariDataSource();	// using connection pooling
+				((HikariDataSource) dataSource).setJdbcUrl(jdbcUrl);
+				((HikariDataSource) dataSource).setUsername(user);
+				((HikariDataSource) dataSource).setPassword(pw);
+				((HikariDataSource) dataSource).setReadOnly(true);
+				((HikariDataSource) dataSource).setMaximumPoolSize(3);
+				
 				if ("Oracle".equalsIgnoreCase(scannerName)) {
-					 Properties connProperties = new Properties();
-					 connProperties.put("remarksReporting", "true");	// otherwise no comments are retrieved as metadata.
-					 connProperties.put ("user", 			user);
-					 connProperties.put ("password", 		pw);
-					
-					 conn = DriverManager.getConnection(jdbcUrl, connProperties);
-					 conn.setReadOnly(true);
-					 
-					 scanner = new OracleScanner(conn); 					
+					((HikariDataSource) dataSource).addDataSourceProperty("remarksReporting", "true");
+					scanner = new OracleScanner(dataSource); 					
 				} else {		
-			
-					conn = DriverManager.getConnection(jdbcUrl, user, pw);
-					conn.setReadOnly(true);
-					scanner = new GenericDbScanner(conn);					
+					scanner = new GenericDbScanner(dataSource);					
 				}
 			} else {
 				scanner = new MockScanner();
@@ -86,8 +85,8 @@ public class ScannerFactory {
 			LOG.error("could not create scanner: " + ex.getMessage(), ex);
 
 			try {				
-				if (conn != null) {
-					conn.close();
+				if (dataSource != null) {
+					((HikariDataSource) dataSource).close();
 				}
 			} catch (Exception nestedex) {
 				// nothing to do here..

@@ -23,9 +23,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.sql.DataSource;
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetFactory;
 import javax.sql.rowset.RowSetProvider;
+
+import com.zaxxer.hikari.HikariDataSource;
+
 
 /**
  * get meta data by jdbc onboard methods.
@@ -39,7 +43,7 @@ public class GenericDbScanner implements IScanner {
 	private static final Logger LOG = LoggerFactory.getLogger(GenericDbScanner.class);
 
 	/** database connection. */
-	private   Connection connection;
+	private DataSource dataSource;
 	
 	/** use experimental parallel execution. */
 	private boolean    useParallelStream = false;
@@ -50,8 +54,28 @@ public class GenericDbScanner implements IScanner {
 	private List<IDbTable> cachedTables = null;
 	
 	/** ctor. */
-	public GenericDbScanner(@NotNull final Connection connection) {
-		this.connection = Require.notNull(connection);
+	public GenericDbScanner(@NotNull final DataSource dataSource) {
+		this.dataSource = Require.notNull(dataSource, "dataSource");
+	}
+	
+	private Connection getConnection() {
+		try {
+			return this.dataSource.getConnection();
+		} catch (Exception ex) {
+			LOG.error("error getting connection from pool: " + ex.getMessage(), ex);
+			throw new ScannerException(ex.getMessage(), ex);
+		}
+	}
+	
+	private void returnPooledConnection(Connection con) {
+		try {
+			if (con != null) {
+				con.close();
+			}
+		} catch (Exception ex) {
+			LOG.error("error returning connection to pool: " + ex.getMessage(), ex);
+			throw new ScannerException(ex.getMessage(), ex);
+		}
 	}
 		
 	
@@ -75,10 +99,12 @@ public class GenericDbScanner implements IScanner {
 	private List<IDbTable> getTablesInternal() {
 		LOG.debug("retrieve tables");
 		
+		Connection connection = getConnection();
 		try {
 			long tableReadCount = 0;
 			List<IDbTable> tables = new ArrayList<IDbTable>();
-			ResultSet rsTable = connection.getMetaData().getTables(null, null, "%", null);
+			
+			ResultSet rsTable = this.dataSource.getConnection().getMetaData().getTables(null, null, "%", null);
 			while (rsTable.next()) {
 				final String schema = rsTable.getString("TABLE_SCHEM");
 				
@@ -127,6 +153,8 @@ public class GenericDbScanner implements IScanner {
 			return tables;
 		} catch (Exception ex) {
 			throw new ScannerException("error retrieving tables " + ex.getMessage(), ex);
+		} finally {
+			returnPooledConnection(connection);
 		}
 	}
 	
@@ -148,7 +176,8 @@ public class GenericDbScanner implements IScanner {
 	/** enrich table with grants. */
 	private IDbTable mapWithPrivilege(@NotNull IDbTable table) {
 		LOG.debug("map privileges for table " + table);
-		try (ResultSet rsPrivilege = connection.getMetaData()
+		Connection con = getConnection();
+		try (ResultSet rsPrivilege = con.getMetaData()
 				.getTablePrivileges(
 						Require.notNull(table, "table").getCatalog(), 
 						table.getSchema(), 
@@ -162,13 +191,16 @@ public class GenericDbScanner implements IScanner {
 		} catch	(Exception ex) {
 			LOG.error("error mapWithKey: " + ex.getMessage(), ex);
 			throw new ScannerException(ex.getMessage(), ex);
+		} finally {
+			returnPooledConnection(con);
 		}
 	}
 	
 	/* enrich table with foreign keys. */
 	private IDbTable mapWithKey(@NotNull IDbTable table) {
 		LOG.debug("map fk-keys for table " + table);
-		try (ResultSet rsKey = connection.getMetaData().getExportedKeys(
+		Connection con = getConnection();
+		try (ResultSet rsKey = con.getMetaData().getExportedKeys(
 				Require.notNull(table, "table").getCatalog(), 
 				table.getSchema(),
 				table.getName())) {
@@ -184,6 +216,8 @@ public class GenericDbScanner implements IScanner {
 		} catch	(Exception ex) {
 			LOG.error("error mapWithKey: " + ex.getMessage(), ex);
 			throw new ScannerException(ex.getMessage(), ex);
+		} finally {
+			returnPooledConnection(con);
 		}
 	}
 	
@@ -199,8 +233,9 @@ public class GenericDbScanner implements IScanner {
 	public List<IDbTable> getParallelTables() {
 		LOG.debug("retrieve tables parallel..");
 		
+		Connection con = getConnection();
 		try {
-			ResultSet rsTable = connection.getMetaData().getTables(null, null, "%", null);
+			ResultSet rsTable = con.getMetaData().getTables(null, null, "%", null);
 
 			// serialized reading of all tables..
 			Stream<IDbTable> tables = StreamSupport
@@ -231,7 +266,10 @@ public class GenericDbScanner implements IScanner {
 		} catch (Exception ex) {
 			LOG.error(ex.getMessage(), ex);
 			throw new ScannerException("error retrieving tables " + ex.getMessage(), ex);
+		} finally {
+			returnPooledConnection(con);
 		}
+		
 	}
 	
 	
@@ -245,10 +283,12 @@ public class GenericDbScanner implements IScanner {
 	 */
 	@Override
 	@NotNull public List<IDbColumn> getColumns(@NotNull final IDbTable table) {
+
 		LOG.debug("retrieve columns for " + table);
+		Connection con = getConnection();
 		try {
 			List<IDbColumn> columns = new ArrayList<>();
-			try (ResultSet rsColumn = connection.getMetaData().getColumns(
+			try (ResultSet rsColumn = con.getMetaData().getColumns(
 					Require.notNull(table).getCatalog(), 
 					table.getSchema(), 
 					Require.notNull(table).getName(), 
@@ -269,7 +309,7 @@ public class GenericDbScanner implements IScanner {
 			}
 			    
 			LOG.debug("retrieve primary key information for " + table);
-			try (ResultSet rsKey = connection.getMetaData().getPrimaryKeys(
+			try (ResultSet rsKey = con.getMetaData().getPrimaryKeys(
 				    		table.getCatalog(), 
 				    		table.getSchema(), 
 				    		table.getName())) {
@@ -291,7 +331,7 @@ public class GenericDbScanner implements IScanner {
 		    
 		    
 		    LOG.debug("retrieve foreign key information for " + table);
-		    try (ResultSet rsKey = connection.getMetaData().getImportedKeys(
+		    try (ResultSet rsKey = con.getMetaData().getImportedKeys(
 			    		table.getCatalog(), 
 			    		table.getSchema(), 
 			    		table.getName())) {
@@ -329,13 +369,14 @@ public class GenericDbScanner implements IScanner {
 			    rsKey.close();
 		    } catch (SQLException ex) {
 	        	LOG.error("foreign key information not processed for table " + table.getName(), ex);
-	        }		    
-		    
+		    }
 		    return columns;
 		    
 		} catch (Exception ex) {
 			throw new ScannerException("error retrieving colums for " + table + ", " + ex.getMessage(), ex);
-		}
+        } finally {
+        	returnPooledConnection(con);
+        }
 	}
 
 	/** a list of db schema for which the documentation should be generated. */
@@ -357,7 +398,8 @@ public class GenericDbScanner implements IScanner {
 		RowSetFactory rowSetFactory = null;
 		CachedRowSet rowSet = null;
 
-		try (Statement stmt = Require.notNull(this.connection, "connection").createStatement()) {
+		Connection con = getConnection();
+		try (Statement stmt = con.createStatement()) {
 			ResultSet rsQuery = stmt.executeQuery(Require.notNull(sqlSelect, "sqlSelect"));
 
 			rowSetFactory = RowSetProvider.newFactory();
@@ -370,6 +412,8 @@ public class GenericDbScanner implements IScanner {
 		} catch (Exception ex) {
 			LOG.error("error retrieving data für table " + table.fqnName() + ": " + ex.getMessage(), ex);
 			throw new ScannerException("error retrieving data from " + table.fqnName(), ex);
+		} finally {
+			returnPooledConnection(con);
 		}
 	}
 
@@ -384,11 +428,11 @@ public class GenericDbScanner implements IScanner {
 
 	@Override
 	public void close() throws Exception {
-		if (this.connection != null && !this.connection.isClosed()) {
-			LOG.debug("closing db connection in scanner");
-			this.connection.close();
+		if (this.dataSource != null) {
+			LOG.debug("closing db connection pool in scanner");
+			((HikariDataSource) this.dataSource).close();
 		}
-		this.connection = null;		
+		this.dataSource = null;		
 	}
 
 }

@@ -1,6 +1,6 @@
 package org.manathome.schema2doc.scanner.impl;
 
-import java.sql.Connection;
+import javax.sql.DataSource;
 
 
 /**
@@ -13,8 +13,8 @@ import java.sql.Connection;
  */
 public class OracleScanner extends GenericDbScanner {
 	
-	public OracleScanner(Connection con) {
-		super(con);
+	public OracleScanner(DataSource ds) {
+		super(ds);
 		this.setUseParallelStream(true);
 	}
 	

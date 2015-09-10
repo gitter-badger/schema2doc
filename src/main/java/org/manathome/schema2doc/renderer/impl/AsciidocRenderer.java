@@ -118,7 +118,10 @@ public class AsciidocRenderer implements IRenderer {
 		out.println();
 		out.println("Grants: " + table.getPrivileges().map(IDbPrivilege::display).collect(Collectors.joining(", ")));
 		out.println();
-		out.println("Referenced by: " + table.getReferrer().map(IReference::display).collect(Collectors.joining(", ")));
+		out.println("Referenced by: " + 
+				table.getReferrer()
+					 .map(IReference::display)
+					 .collect(Collectors.joining(", ")));
 		
 		if (tableDataAugmenter != null && tableDataAugmenter.getData() != null) {
 			renderRowSet(tableDataAugmenter.getData());
@@ -132,6 +135,7 @@ public class AsciidocRenderer implements IRenderer {
 			LOG.debug("rendering additional data for table");
 			out.println();
 			out.println("===== Data");
+			out.println();
 			out.println("|===");
 			
 			try {				
@@ -140,12 +144,13 @@ public class AsciidocRenderer implements IRenderer {
 				for (int i = 1; i <= columnCount; i++) {
 					out.print("| " + rowSet.getMetaData().getColumnLabel(i));
 				}
-				out.println(""); // needed to get header formatting for above line.
+				out.println(); // needed to get header formatting for above line.
+				out.println();
 				
 				// data rows
 				while (rowSet.next()) {
 					for (int i = 1; i <= columnCount; i++) {
-						out.print("| " + rowSet.getString(i));
+						renderTableCell(rowSet.getString(i));
 					}
 					out.println();
 				}	
@@ -159,6 +164,21 @@ public class AsciidocRenderer implements IRenderer {
 		}
 	}
 
+	/** render one asciidoc table cell. */
+	private void renderTableCell(final String cellContent) {
+		out.println("| " + escapeText(cellContent));		
+	}
+	
+	/** escape characters that would lead to asciidoc formatting. (unfinished). */
+	private String escapeText(final String unescapedText) {
+		return Convert
+				.nvl(unescapedText, "")
+				.replace("|", "\\|")
+				.replace("\r\n", " +")
+				.replace("\n", " +")
+				;				
+	}
+
 	/* (non-Javadoc)
 	 * @see org.manathome.schema2doc.renderer.IRenderer#renderColumn(org.manathome.schema2doc.scanner.IDbColumn)
 	 */
@@ -166,11 +186,11 @@ public class AsciidocRenderer implements IRenderer {
 	public void renderColumn(@NotNull final IDbColumn column) {
 		Require.notNull(column, "column");
 		Require.notNull(out, "out");
-		out.println("| " + (column.isPrimaryKey() ? "*" + column.getName() + "*" : column.getName())); 
-		out.println("| " + (column.isPrimaryKey() ? "PK " + column.getPrimaryKeyIndex() : ""));
-		out.println("| " + column.getTypename()); 
-		out.println("| " + Convert.nvl(column.getComment(), ""));
-		out.println("| " + (column.getSize() != null ? column.getSize().toString() : ""));
+		renderTableCell((column.isPrimaryKey() ? "*" + column.getName() + "*" : column.getName())); 
+		renderTableCell((column.isPrimaryKey() ? "PK " + column.getPrimaryKeyIndex() : ""));
+		renderTableCell(column.getTypename()); 
+		renderTableCell(Convert.nvl(column.getComment(), ""));
+		renderTableCell((column.getSize() != null ? column.getSize().toString() : ""));
 		
 		if (column.getForeignKeyReferences().findAny().isPresent()) {
 			out.print("| ");
@@ -183,7 +203,7 @@ public class AsciidocRenderer implements IRenderer {
 								fk.getReferencedTable(), null));
 			});				
 		} else {
-			out.println("| ");
+			renderTableCell("");
 		}
 		out.println("");
 	}
@@ -229,7 +249,7 @@ public class AsciidocRenderer implements IRenderer {
 	/** create an asciidoc xref  table link in form <<(fqnTable,displayText>>.
 	 * @see http://asciidoctor.org/docs/asciidoc-writers-guide/ 
 	 */
-	String createTableXref(String catalog, String schema, @NotNull String table, String optionalDisplayText) {
+	static String createTableXref(String catalog, String schema, @NotNull String table, String optionalDisplayText) {
 		return "<<" + 
 			   createTableFQN(catalog, schema, table) +
 			   "," + 
@@ -237,11 +257,11 @@ public class AsciidocRenderer implements IRenderer {
 			   ">>";
 	}
 	
-	String createTableFQN(@NotNull IDbTable table) {
+	static String createTableFQN(@NotNull IDbTable table) {
 		return createTableFQN(Require.notNull(table).getCatalog(), table.getSchema(), table.getName());
 	}
 	
-	String createTableFQN(String catalog, String schema, @NotNull String table) {
+	static String createTableFQN(String catalog, String schema, @NotNull String table) {
 		return
 		   Convert.nvl2(catalog, catalog + ".", "") +
 		   Convert.nvl2(schema, schema + ".", "") +

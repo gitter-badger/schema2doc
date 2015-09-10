@@ -136,6 +136,7 @@ Used library dependencies are:
 
 - _slf4j_ with _logback_ for logging
 - _commons-cli_ for command line argument parsing
+- _HikariCP_ db connection pool
 - the relevant jdbc driver suitable for your database
 
 

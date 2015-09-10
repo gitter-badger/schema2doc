@@ -78,6 +78,7 @@ dependencies {
    compile "org.slf4j:slf4j-api:1.7.12"                      // logging api
    compile "ch.qos.logback:logback-classic:1.1.3"            // logging library
    compile "commons-cli:commons-cli:1.3"                     // command line parser 
+   compile "com.zaxxer:HikariCP:2.4.1"                       // connection pool
    
    testCompile "junit:junit:4.12"							 // unit tests
    testCompile "com.h2database:h2:1.4.187"					 // dev database (usable in memory)
