@@ -12,3 +12,5 @@ lib/ojdbc7.jar
 src/docs/examples/*.png
 src/docs/examples/*.png.cache
 src/docs/examples/images/
+.classpath
+.settings/org.eclipse.jdt.core.prefs
