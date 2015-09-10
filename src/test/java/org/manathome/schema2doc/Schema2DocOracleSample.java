@@ -34,16 +34,15 @@ public class Schema2DocOracleSample {
 	}
 
 	/** optional test: using oracle. */
-	@Ignore
 	@Test
 	public void testEoxe() throws Exception {
-
+		
 			this.scanner = ScannerFactory.getInstance().getScanner(
 					"Oracle",
 					"oracle.jdbc.driver.OracleDriver", 
 					"jdbc:oracle:thin:@ebseoxdpc01:1521:eoxe", 
-					"****", 
-					"**");
+					System.getenv("EOXE_USER"), 
+					System.getenv("EOXE_PW"));
 					
 			this.scanner.setSchemaFilter(new String[] {"EOX"});
 			
