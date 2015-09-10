@@ -1,5 +1,5 @@
 = schema2doc database documentation
-:Date:    Thu Sep 10 02:07:42 CEST 2015
+:Date:    Thu Sep 10 23:49:03 CEST 2015
 :numbered:
 :icons:     font
 :toc:       left
@@ -114,7 +114,7 @@ object S2D_TABLE1 {
 
 Grants: 
 
-Referenced by: SCHEMA2DOC.TEST.H2.DB.PUBLIC.S2D_TABLE2
+Referenced by: <<SCHEMA2DOC.TEST.H2.DB.PUBLIC.S2D_TABLE2,S2D_TABLE2>>
 [[SCHEMA2DOC.TEST.H2.DB.PUBLIC.S2D_TABLE2]]
 ==== Table *S2D_TABLE2*
 a s2d_table2 comment
@@ -254,4 +254,20 @@ Grants:
 
 Referenced by: 
 
-document generated at Thu Sep 10 02:07:43 CEST 2015
+
+==== Procedures 
+
+|===
+| name | comment
+
+| PROC_SAMPLE_NAME2
+| eine einfache Beispielprozedur H2.
+
+| SAMPLE_NAME
+| 
+
+|===
+
+
+
+document generated at Thu Sep 10 23:49:06 CEST 2015

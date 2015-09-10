@@ -1,6 +1,7 @@
 package org.manathome.schema2doc.scanner.impl;
 
 import org.manathome.schema2doc.scanner.IDbColumn;
+import org.manathome.schema2doc.scanner.IDbProcedure;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.IScanner;
 import org.manathome.schema2doc.scanner.ScannerException;
@@ -53,6 +54,8 @@ public class GenericDbScanner implements IScanner {
 
 	private List<IDbTable> cachedTables = null;
 	
+	private List<IDbProcedure> cachedProcedures = null;
+	
 	/** ctor. */
 	public GenericDbScanner(@NotNull final DataSource dataSource) {
 		this.dataSource = Require.notNull(dataSource, "dataSource");
@@ -87,6 +90,57 @@ public class GenericDbScanner implements IScanner {
 			this.cachedTables = this.isUseParallelStream() ? getParallelTables() : getTablesInternal();
 		} 
 		return this.cachedTables.stream();
+	}
+	
+	@Override
+	@NotNull
+	public Stream<IDbProcedure> getProcedures() {
+		
+		if (this.cachedProcedures == null) {
+			this.cachedProcedures = getProceduresInternal();
+		} 
+		return this.cachedProcedures.stream();
+	}	
+
+	private List<IDbProcedure> getProceduresInternal() {
+		LOG.debug("retrieve procedures");
+		long procReadCount = 0;
+		
+		Connection connection = getConnection();
+		try {
+			List<IDbProcedure> procedures = new ArrayList<IDbProcedure>();
+			
+			ResultSet rsProcedures = this.dataSource.getConnection().getMetaData().getProcedures(null, null, null);
+			while (rsProcedures.next()) {
+				final String schema = rsProcedures.getString("PROCEDURE_SCHEM");
+				final String name   = rsProcedures.getString("PROCEDURE_NAME");
+				
+				if (procReadCount == 0 || (procReadCount % 100) == 0) {
+				    LOG.debug(" ... scanning procedure " 
+				    			+ procReadCount + ", thereof relevant " 
+				    			+ procedures.size() + " currently " 
+				    			+ name);
+				}
+				procReadCount++;
+				
+				if (schemaToDocument == null
+						|| Arrays.stream(schemaToDocument).anyMatch(s -> s.equalsIgnoreCase(schema))) {
+					procedures.add(new DbProcedureDefaultData(
+							rsProcedures.getString("PROCEDURE_CAT"),
+							schema,
+							name, 
+							rsProcedures.getString("REMARKS")));
+				}
+			}
+			rsProcedures.close();
+			
+			return procedures;
+			
+		} catch (SQLException sqlEx) {
+			throw new ScannerException("error retrieving procedures " + sqlEx.getMessage(), sqlEx);			
+		} finally {
+			returnPooledConnection(connection);
+		}
 	}
 
 	/**

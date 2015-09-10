@@ -4,15 +4,18 @@ schema2doc
 :Date:   2015-08-25
 
 image:https://badge.waffle.io/man-at-home/schema2doc.svg?label=ready&title=Ready["stories ready to start", link=http://waffle.io/man-at-home/schema2doc"]
+
 image:https://drone.io/github.com/man-at-home/schema2doc/status.png["drone.io", link="https://drone.io/github.com/man-at-home/schema2doc/latest"]
 image:https://circleci.com/gh/man-at-home/schema2doc/tree/master.svg?style=svg["Circle CI", link="https://circleci.com/gh/man-at-home/schema2doc/tree/master"]
 image:https://travis-ci.org/man-at-home/schema2doc.svg?branch=master["travis Build Status", link="https://travis-ci.org/man-at-home/schema2doc"]
+image:https://ci.appveyor.com/api/projects/status/6aggrtckx99mokb1?svg=true["appveyor build", link="https://ci.appveyor.com/project/man-at-home/schema2doc"]
+
 image:http://codecov.io/github/man-at-home/schema2doc/coverage.svg?branch=master ["codecov.io", link="http://codecov.io/github/man-at-home/schema2doc?branch=master"]
 image:https://scan.coverity.com/projects/5964/badge.svg ["coverity", link="https://scan.coverity.com/projects/5964"]
 image:https://img.shields.io/github/license/man-at-home/schema2doc.svg  ["license", link="https://github.com/man-at-home/schema2doc"]
 image:https://api.bintray.com/packages/man-at-home/maven/schema2doc/images/download.svg[link="https://bintray.com/man-at-home/maven/schema2doc/_latestVersion"]
 
-WARNING: not functional yet!
+WARNING: not yet functional!
 
 generating markup based documentation from a oracle database. Document tables and more with asciidoc.
 use it in build tools like gradle.

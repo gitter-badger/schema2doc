@@ -4,6 +4,7 @@ import org.manathome.schema2doc.augmenter.IDocumentationAugmenter;
 import org.manathome.schema2doc.augmenter.ITableDataAugmenter;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IDbColumn;
+import org.manathome.schema2doc.scanner.IDbProcedure;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.util.Convert;
 import org.manathome.schema2doc.util.NotNull;
@@ -112,5 +113,18 @@ public class PlaintextRenderer implements IRenderer {
 	@Override
 	public void setOut(PrintWriter out) {
 		this.out = Require.notNull(out, "out (PrintWriter)");	
+	}
+
+	@Override
+	public void renderProcedure(IDbProcedure procedure) {
+		this.out.println("procedure: " + procedure.getName());		
+	}
+
+	@Override
+	public void beginRenderCode() {	
+	}
+
+	@Override
+	public void endRenderCode() {	
 	}
 }

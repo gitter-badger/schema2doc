@@ -8,6 +8,12 @@ import java.util.stream.Stream;
 
 /** meta data for database table. */
 public interface IDbTable extends Comparable<IDbTable>{
+
+	/** optional catalog this table belongs to. */
+	public String getCatalog();
+
+	/** optional schema this table belongs to. */
+	public String getSchema();
 	
 	/** table name. */
 	@NotNull public String getName();
@@ -15,11 +21,6 @@ public interface IDbTable extends Comparable<IDbTable>{
 	/** get documentation for table. */
 	public String getComment();
 
-	/** optional catalog this table belongs to. */
-	public String getCatalog();
-
-	/** optional schema this table belongs to. */
-	public String getSchema();
 
 	/** default implementation of full qualified table name, giving string in "catalog.schema.name" form. */
 	@NotNull public default String fqnName() {

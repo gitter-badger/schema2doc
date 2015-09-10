@@ -6,8 +6,10 @@ import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.renderer.RenderException;
 import org.manathome.schema2doc.scanner.IDbColumn;
 import org.manathome.schema2doc.scanner.IDbPrivilege;
+import org.manathome.schema2doc.scanner.IDbProcedure;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.IReference;
+import org.manathome.schema2doc.scanner.ITableReference;
 import org.manathome.schema2doc.util.Convert;
 import org.manathome.schema2doc.util.NotNull;
 import org.manathome.schema2doc.util.Require;
@@ -34,8 +36,8 @@ public class AsciidocRenderer implements IRenderer {
     /** out stream to render to. */
     private PrintWriter out = null;
     
-    /** add plantuml diagram to table output. */
-    private boolean withDiagram = true;
+    /** add plantuml (http://plantuml.com/) diagram to table output. */
+    private boolean includeGraphics = true;
 
     /** .ctor. */
 	public AsciidocRenderer(@NotNull final PrintWriter out) {
@@ -47,6 +49,12 @@ public class AsciidocRenderer implements IRenderer {
 	public AsciidocRenderer() {
 		LOG.debug("using asciidoc renderer..");		
 	}
+	
+    /** .ctor. */
+	public AsciidocRenderer(boolean includeGraphics) {
+		this();
+		this.includeGraphics = includeGraphics;
+	}	
 
 	@Override
 	public void renderCatalog(@NotNull String catalog) {
@@ -79,7 +87,7 @@ public class AsciidocRenderer implements IRenderer {
 			out.print(Convert.nvl(tableDocAugmenter.getData(), ""));
 		}
 		
-		if (withDiagram) {
+		if (includeGraphics) {
 			renderDiagram(table);
 		}
 		
@@ -120,7 +128,7 @@ public class AsciidocRenderer implements IRenderer {
 		out.println();
 		out.println("Referenced by: " + 
 				table.getReferrer()
-					 .map(IReference::display)
+					 .map(ref -> createReferenceXref(ref))
 					 .collect(Collectors.joining(", ")));
 		
 		if (tableDataAugmenter != null && tableDataAugmenter.getData() != null) {
@@ -128,6 +136,7 @@ public class AsciidocRenderer implements IRenderer {
 		}
 		out.flush();
 	}
+	
 
 	private void renderRowSet(final CachedRowSet rowSet) {
 		
@@ -173,7 +182,8 @@ public class AsciidocRenderer implements IRenderer {
 	private String escapeText(final String unescapedText) {
 		return Convert
 				.nvl(unescapedText, "")
-				.replace("|", "\\|")
+				.replace("\n---", "\n\\---")	// that is *not* the full story..
+				.replace("|", "\\|")			// still undecided: full escape OR oracle comments with asciidoc formatting?
 				.replace("\r\n", " +")
 				.replace("\n", " +")
 				;				
@@ -257,6 +267,16 @@ public class AsciidocRenderer implements IRenderer {
 			   ">>";
 	}
 	
+	/** create an asiidoc xref if possible. */
+	static String createReferenceXref(@NotNull IReference reference) {
+		if (Require.notNull(reference, "reference") instanceof ITableReference) {
+			ITableReference tblReference = (ITableReference) reference;
+			return createTableXref(tblReference.getCatalog(), tblReference.getSchema(), tblReference.getTable(), null);
+		} else {
+			return reference.display();
+		}
+	}
+	
 	static String createTableFQN(@NotNull IDbTable table) {
 		return createTableFQN(Require.notNull(table).getCatalog(), table.getSchema(), table.getName());
 	}
@@ -277,5 +297,31 @@ public class AsciidocRenderer implements IRenderer {
 	@Override
 	public void setOut(PrintWriter out) {
 		this.out = Require.notNull(out, "out (PrintWriter)");
+	}
+
+	@Override
+	public void renderProcedure(@NotNull IDbProcedure procedure) {
+
+		out.println("| " + Require.notNull(procedure).getName());
+		out.println("| " + procedure.getComment());
+		out.println();		
+	}
+
+	@Override
+	public void beginRenderCode() {
+		Require.notNull(out).println();
+		out.println();
+		out.println("==== Procedures "); 
+		out.println();
+		out.println("|===");
+		out.println("| name | comment");
+		out.println();	
+	}
+
+	@Override
+	public void endRenderCode() {
+		out.println("|===");
+		out.println();
+		out.println();
 	}
 }

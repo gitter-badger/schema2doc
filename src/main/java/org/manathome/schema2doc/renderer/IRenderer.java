@@ -3,6 +3,7 @@ package org.manathome.schema2doc.renderer;
 import org.manathome.schema2doc.augmenter.IDocumentationAugmenter;
 import org.manathome.schema2doc.augmenter.ITableDataAugmenter;
 import org.manathome.schema2doc.scanner.IDbColumn;
+import org.manathome.schema2doc.scanner.IDbProcedure;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.util.NotNull;
 
@@ -42,7 +43,14 @@ public interface IRenderer extends AutoCloseable {
 	
 	/** end of document creation. */
 	void endRenderDocumentation();
+	
+	void beginRenderCode();
+	
+	/** a procedure. */
+	void renderProcedure(@NotNull IDbProcedure procedure);
 
+	void endRenderCode();
+	
 	/** 
 	 * optional grouping by catalog
 	 * 

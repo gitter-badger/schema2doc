@@ -16,6 +16,9 @@ public interface IScanner extends AutoCloseable {
 	/** gets a list of table columns for a given table. */
 	@NotNull List<IDbColumn> getColumns(@NotNull IDbTable table);
 	
+	/** get a list of database procedures. */
+	@NotNull Stream<IDbProcedure> getProcedures();
+	
 	/** 
 	 * retrieve arbitrary data samples for tables by executing given sql select. may return null if not supported. 
 	 * 
