@@ -104,16 +104,19 @@ public class Schema2DocCmd {
 	/** create suitable renderer from command line args. */
 	@NotNull static IRenderer prepareRenderer(@NotNull final CommandLine cmdLine) throws Exception {
 		
-		final String argOutDir   = Require.notNull(cmdLine).getOptionValue("out", null);
-		final String argRenderer = cmdLine.getOptionValue("renderer", "Asciidoc");
+		final String  argOutDir   = Require.notNull(cmdLine).getOptionValue("out", null);
+		final String  argRenderer = cmdLine.getOptionValue("renderer", "Asciidoc");
+		final boolean argGraphics = cmdLine.hasOption("graphics");
 		
-		return prepareRenderer(argRenderer, argOutDir);
+		return prepareRenderer(argRenderer, argOutDir, argGraphics);
 	}
 
 	/** create renderer, plaintext or asciidoc. */
 	@NotNull public static IRenderer prepareRenderer(
 			@NotNull final String rendererImplementation, 
-			@NotNull final String outDir) throws Exception {
+			@NotNull final String outDir,
+			final boolean includeGraphics
+			) throws Exception {
 
 		LOG.debug("preparing renderer for " + rendererImplementation + ", " + outDir);
 
@@ -122,7 +125,7 @@ public class Schema2DocCmd {
 		
 		// find suitable renderer
 		if (Require.notNull(rendererImplementation, "renderer").toLowerCase().contains("asciidoc")) {
-			renderer = new AsciidocRenderer(); 			
+			renderer = new AsciidocRenderer(includeGraphics); 			
 		} else if (rendererImplementation.toLowerCase().contains("plaintext")) {
 			renderer = new PlaintextRenderer(); 						
 		} else {
@@ -246,6 +249,9 @@ public class Schema2DocCmd {
 		
 		cmdOptions.addOption(Option.builder("h").desc("command line help").longOpt("help").optionalArg(true).build());
 		cmdOptions.addOption(Option.builder("v").desc("verbose output").longOpt("verbose").optionalArg(true).build());
+		cmdOptions.addOption(Option.builder("g")
+				.desc("include graphics in documentation (asciidoc only)")
+				.longOpt("graphics").optionalArg(true).build());
 	
 		return Ensure.notNull(cmdOptions, "cmdOptions");
 	}

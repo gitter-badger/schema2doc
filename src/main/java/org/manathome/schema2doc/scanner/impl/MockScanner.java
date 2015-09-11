@@ -1,6 +1,7 @@
 package org.manathome.schema2doc.scanner.impl;
 
 import org.manathome.schema2doc.scanner.IDbColumn;
+import org.manathome.schema2doc.scanner.IDbProcedure;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.IScanner;
 
@@ -65,6 +66,7 @@ public class MockScanner implements IScanner {
 	public Stream<IDbTable> getTables() {
 		return TABLES.stream();
 	}
+
 	
 	/* (non-Javadoc)
 	 * @see org.manathome.schema2doc.scanner.impl.IScanner#getColumns(org.manathome.schema2doc.scanner.IDbTable)
@@ -88,5 +90,10 @@ public class MockScanner implements IScanner {
 	@Override
 	public void close() throws Exception {
 		// noop in mock.		
+	}
+
+	@Override
+	public Stream<IDbProcedure> getProcedures() {
+		return new ArrayList<IDbProcedure>().stream();
 	}
 }

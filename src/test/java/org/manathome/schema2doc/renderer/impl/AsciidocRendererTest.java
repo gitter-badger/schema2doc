@@ -8,8 +8,10 @@ import org.junit.Test;
 
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IDbColumn;
+import org.manathome.schema2doc.scanner.IDbProcedure;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.scanner.impl.DbColumnDefaultData;
+import org.manathome.schema2doc.scanner.impl.DbProcedureDefaultData;
 import org.manathome.schema2doc.scanner.impl.DbTableDefaultData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +110,21 @@ public class AsciidocRendererTest {
 		assertTrue(content.size() > 0);
 		content.stream().forEach(s -> LOG.debug("output: " + s));
 		outFile.deleteOnExit();
+	}
+	
+	@Test
+	public  void testRenderProcedure() throws Exception {
+		IDbProcedure proc = new DbProcedureDefaultData(null, "dummysch", "procname", "no comment");
+		
+		renderer.beginRenderCode();
+		renderer.renderProcedure(proc);
+		renderer.endRenderCode();
+	
+		String result = bout.toString("UTF-8");
+		
+		assertThat(result, containsString("procname"));
+		assertThat(result, containsString("no comment"));
+		assertThat(result, containsString("|==="));
 	}
 
 }

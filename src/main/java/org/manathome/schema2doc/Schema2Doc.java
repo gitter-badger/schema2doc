@@ -96,6 +96,11 @@ public class Schema2Doc implements IAugmenterConfiguration {
 			
 			renderer.endRenderTable(table, tableDataAugmenter);
 		}
+		
+		renderer.beginRenderCode();
+		scanner.getProcedures().forEach(proc -> renderer.renderProcedure(proc));
+		renderer.endRenderCode();
+		
 		renderer.endRenderDocumentation();
 
 		renderer.close();

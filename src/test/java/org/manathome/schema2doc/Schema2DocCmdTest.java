@@ -36,7 +36,8 @@ public class Schema2DocCmdTest {
 		String[] args = new String[] { 
 				"-connection" , "egal",
 				"-scanner",  "Mock",
-				"-verbose"
+				"-verbose",
+				"-graphics"
 				};
 		CommandLine cmd = Schema2DocCmd.parseArguments(args);
 		LOG.debug("cmd=" + cmd.toString());
@@ -44,13 +45,14 @@ public class Schema2DocCmdTest {
 		assertTrue("connection arg found", cmd.hasOption("connection"));
 		assertTrue("scanner arg found", cmd.hasOption("scanner"));
 		assertEquals("scanner is Mock", "Mock", cmd.getOptionValue("scanner"));
+		assertTrue("graphics option", cmd.hasOption("graphics"));
 	}
 	
 	
 	@Test
 	public void testCommandLineOptions() throws Exception {
 		Options options = Schema2DocCmd.createCommandLineOptions();
-		assertThat(options.getOptions().size(), is(11));
+		assertThat(options.getOptions().size(), is(12));
 		assertTrue(options.hasOption("schema"));
 		assertTrue(options.hasOption("connection"));
 	}
@@ -79,7 +81,7 @@ public class Schema2DocCmdTest {
 	@Test
 	public void testPrepareAsciidocRenderer() throws Exception {
 		
-		IRenderer renderer = Schema2DocCmd.prepareRenderer("asciidoc", null);
+		IRenderer renderer = Schema2DocCmd.prepareRenderer("asciidoc", null, true);
 		assertNotNull(renderer);
 		assertTrue(renderer.getClass().getName().contains("Ascii"));
 	}
@@ -88,14 +90,14 @@ public class Schema2DocCmdTest {
 	public void testPreparePlaintextRenderer() throws Exception {
 		
 		Schema2DocCmd.isVerbose = false;
-		IRenderer renderer = Schema2DocCmd.prepareRenderer("Plaintext", null);
+		IRenderer renderer = Schema2DocCmd.prepareRenderer("Plaintext", null, false);
 		assertNotNull(renderer);
 		assertTrue("renderer not expected: " + renderer.getClass().getName(), renderer.getClass().getName().contains("Plaintext"));
 	}
 	
 	@Test(expected = RenderException.class)
 	public void testPrepareUnknownRenderer() throws Exception {		
-		Schema2DocCmd.prepareRenderer("UnknownRenderer", null);
+		Schema2DocCmd.prepareRenderer("UnknownRenderer", null, false);
 	}
 		
 	@Test

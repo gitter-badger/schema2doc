@@ -4,6 +4,7 @@ import org.manathome.schema2doc.augmenter.IDocumentationAugmenter;
 import org.manathome.schema2doc.augmenter.ITableDataAugmenter;
 import org.manathome.schema2doc.renderer.IRenderer;
 import org.manathome.schema2doc.scanner.IDbColumn;
+import org.manathome.schema2doc.scanner.IDbProcedure;
 import org.manathome.schema2doc.scanner.IDbTable;
 import org.manathome.schema2doc.util.NotNull;
 import org.slf4j.Logger;
@@ -115,6 +116,20 @@ public final class LoggingAdapterRenderer implements IRenderer {
 	@Override
 	public void setOut(PrintWriter out) {
 		wrappedRenderer.setOut(out);
+	}
+
+	@Override
+	public void renderProcedure(IDbProcedure procedure) {
+		LOG.debug("render procedure: " + procedure.getName());
+		wrappedRenderer.renderProcedure(procedure);		
+	}
+
+	@Override
+	public void beginRenderCode() {	
+	}
+
+	@Override
+	public void endRenderCode() {
 	}
 
 }

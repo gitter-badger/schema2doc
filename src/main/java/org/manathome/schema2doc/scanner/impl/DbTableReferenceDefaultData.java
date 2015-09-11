@@ -1,11 +1,27 @@
 package org.manathome.schema2doc.scanner.impl;
 
 import org.manathome.schema2doc.scanner.IReference;
+import org.manathome.schema2doc.scanner.ITableReference;
 import org.manathome.schema2doc.util.Convert;
 import org.manathome.schema2doc.util.Require;
 
 /** reference to/from another table. */
-public class DbTableReferenceDefaultData implements IReference {
+public class DbTableReferenceDefaultData implements ITableReference {
+
+	@Override
+	public String getCatalog() {
+		return catalog;
+	}
+
+	@Override
+	public String getSchema() {
+		return schema;
+	}
+
+	@Override
+	public String getTable() {
+		return table;
+	}
 
 	private String catalog;
 	private String schema;
