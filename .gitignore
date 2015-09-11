@@ -14,3 +14,4 @@ src/docs/examples/*.png.cache
 src/docs/examples/images/
 .classpath
 .settings/org.eclipse.jdt.core.prefs
+src/docs/examples/schema2doc.eoxe.db.oracle.example.asciidoc
